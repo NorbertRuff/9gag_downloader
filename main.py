@@ -20,6 +20,18 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 }
 
+
+# Color Codes
+class Color:
+    MAIN = "#42f5b9"
+    WHITE = "#ffffff"
+    BLACK = "#000000"
+    BLUE = "#42f5b9"
+    RED = "#ff0000"
+    GREEN = "#42f5b9"
+    YELLOW = "#ffff00"
+
+
 # App frame
 app = customtkinter.CTk()
 description_frame = customtkinter.CTkFrame(app)
@@ -33,10 +45,13 @@ progress_frame.pack(padx=10, pady=10, fill=tkinter.X)
 
 source_file_entry = customtkinter.CTkEntry(source_frame, width=700)
 destination_folder_entry = customtkinter.CTkEntry(destination_frame, width=700)
-progress_bar_ui_element = customtkinter.CTkProgressBar(progress_frame, progress_color="#42f5b9", height=20, width=700)
+progress_bar_ui_element = customtkinter.CTkProgressBar(progress_frame, progress_color=Color.MAIN, height=20, width=700)
 progress_bar_percentage = customtkinter.CTkLabel(progress_frame, text="", font=("Arial", 20))
 progress_message_ui_element = customtkinter.CTkLabel(progress_frame, text="", font=("Arial", 16))
 
+download_button = customtkinter.CTkButton(progress_frame, text="Download", width=50, height=10,
+                                          command=lambda: start_download_progress(
+                                              destination_folder_entry.get()))
 
 def read_html_file(file_name):
     with open(file_name, "r", encoding='utf-8') as f:
@@ -45,12 +60,23 @@ def read_html_file(file_name):
 
 
 def get_up_voted_ids(text):
+    gag_ids = []
+    saved_line_start = text.find("<h3>Saved</h3>")
     up_voted_line_start = text.find("<h3>Upvotes</h3>")
     up_voted_line_stop = text.find("<h3>Downvotes</h3>")
+
     up_voted_html_table = text[up_voted_line_start:up_voted_line_stop]
+    saved_html_table = text[saved_line_start:up_voted_line_start]
+
+    saved_links = re.findall(r'href="(.+?)"', saved_html_table)
+    saved_ids = [saved.split("/")[-1] for saved in saved_links]
+
     up_voted_links = re.findall(r'href="(.+?)"', up_voted_html_table)
-    up_voted_ids = [link.split("/")[-1] for link in up_voted_links]
-    return up_voted_ids
+    up_voted_ids = [up_voted.split("/")[-1] for up_voted in up_voted_links]
+
+    gag_ids.extend(up_voted_ids)
+    gag_ids.extend(saved_ids)
+    return gag_ids
 
 
 def try_video_download(gag_id):
@@ -112,20 +138,26 @@ def select_source_folder(folder_path):
 
 
 def start_download_progress(path):
-    up_voted_ids = read_9gag_data()
-    if not up_voted_ids:
-        return
+    # if not path:
+    #     progress_message_ui_element.configure(text="Please select destination folder", text_color="red")
+    #     app.update()
+    #     return
+    gag_ids = read_9gag_data()
+    # if not gag_ids:
+    #     return
     create_dirs_if_not_exist(path)
     reset_progress_ui_elements()
-
-    one_percent = len(up_voted_ids) / 100
-    for i in range(len(up_voted_ids)):
+    download_button.configure(state=tkinter.DISABLED)
+    one_percent = len(gag_ids) / 100
+    for i in range(len(gag_ids)):
         progress_bar_ui_element.set(i / one_percent / 100)
         progress_bar_percentage.configure(text=f"{int(i / one_percent)}%")
+        progress_message_ui_element.configure(text=f"Downloading gag with id: {gag_ids[i]}")
         sleep(0.01)
         app.update()
-    progress_bar_percentage.configure(text="100%")
-    progress_message_ui_element.configure(text="Finished")
+        # download_gag(gag_ids[i])
+    progress_bar_percentage.configure(text="100%", text_color=Color.MAIN)
+    progress_message_ui_element.configure(text="Finished", text_color=Color.MAIN)
 
 
 def reset_progress_ui_elements():
@@ -138,13 +170,16 @@ def reset_progress_ui_elements():
 def add_ui_elements():
     title = customtkinter.CTkLabel(description_frame, text="9GAG Downloader", font=("Arial", 20))
     sub_title = customtkinter.CTkLabel(description_frame, text="""
-    This app will download all the gags you upvoted on 9GAG.
+    This app will download all the gags you upvoted or saved on 9GAG.
     
     Request your 9GAG data from https://9gag.com/settings/privacy
     You will receive an email with a link to download your data in a html file.
     
     Select the folder where you want to save the gags and click on the Download button.
     This will create a folder named 'gags' in the selected folder and save the gags in it.
+    
+    Note: This app will only download the gags you upvoted or saved. It will not download the gags you commented on.
+    Note: This app will not download the gags which are posts or albums. It will only download the gags which are images or videos.
     """, font=("Arial", 12))
     title.pack(padx=10, pady=10)
     sub_title.pack(padx=10, pady=10)
@@ -167,9 +202,6 @@ def add_ui_elements():
     progress_bar_ui_element.set(0)
     progress_bar_percentage.pack(padx=10, pady=10)
     progress_message_ui_element.pack(padx=10, pady=10)
-    download_button = customtkinter.CTkButton(progress_frame, text="Download", width=50, height=10,
-                                              command=lambda: start_download_progress(
-                                                  destination_folder_entry.get()))
     download_button.pack(padx=10, pady=10)
 
 
@@ -181,7 +213,7 @@ def main():
 
 def read_9gag_data():
     up_voted_ids = None
-    print("source_file_entry.get(): ", source_file_entry.get())
+    source_file_entry.insert(0, "D:\Coding\9gag_downloader\Your 9GAG data.html")
     if source_file_entry.get() == "":
         progress_message_ui_element.configure(text="Please select a source file", text_color="red")
         return None
@@ -192,8 +224,8 @@ def read_9gag_data():
         print("9GAG data file not found")
         progress_message_ui_element.configure(text="9GAG data file not found", text_color="red")
     if not up_voted_ids:
-        print("No upvoted gags found")
-        progress_message_ui_element.configure(text="No upvoted gags found in the file", text_color="red")
+        print("No upvoted or saved gags found")
+        progress_message_ui_element.configure(text="No upvoted or saved gags found in the file", text_color="red")
     return up_voted_ids
 
 
