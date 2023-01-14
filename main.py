@@ -24,7 +24,10 @@ HEADERS = {
 # App frame
 app = customtkinter.CTk()
 folder_path = customtkinter.CTkEntry(app, width=700)
-finish_label = customtkinter.CTkLabel(app, text="", font=("Arial", 20))
+progress_message = customtkinter.CTkLabel(app, text="", font=("Arial", 20))
+progress_bar = customtkinter.CTkProgressBar(app, progress_color="grey", height=20, width=700)
+progress_bar_percentage = customtkinter.CTkLabel(app, text="", font=("Arial", 20))
+
 
 def read_html_file(file_name):
     with open(file_name, "r", encoding='utf-8') as f:
@@ -94,6 +97,25 @@ def select_folder(folder_path):
     folder_path.insert(0, tkinter.filedialog.askdirectory())
 
 
+def start_download_progress(path):
+    up_voted_ids = read_9gag_data()
+    create_dirs_if_not_exist(path)
+    reset_progress_ui_elements()
+    one_percent = len(up_voted_ids)/100
+    for i in range(len(up_voted_ids)):
+        progress_bar.set(i/one_percent/100)
+        progress_bar_percentage.configure(text=f"{int(i/one_percent)}%")
+        sleep(0.01)
+        app.update()
+    progress_message.configure(text="Finished")
+
+
+def reset_progress_ui_elements():
+    progress_message.configure(text="Downloading...")
+    progress_bar.set(0)
+    progress_bar_percentage.configure(text="0%")
+    app.update()
+
 
 def add_ui_elements():
     title = customtkinter.CTkLabel(app, text="9GAG Downloader", font=("Arial", 20))
@@ -106,16 +128,20 @@ def add_ui_elements():
     save_location_label = customtkinter.CTkLabel(app, text="Save Location")
     save_location_label.pack(pady=10)
 
-    folder_path.insert(0, "C:/Users/username/Downloads")
+    # folder_path.insert(0, "C:/Users/username/Downloads")
+    folder_path.insert(0, "D:/Downloads (mozilla)")
     file_select_button = customtkinter.CTkButton(app, text="Select Folder", width=20)
     file_select_button.pack(pady=10)
     file_select_button.bind("<Button-1>", lambda event: select_folder(folder_path))
 
     folder_path.pack(padx=10, pady=10)
 
-    download_button = customtkinter.CTkButton(app, text="Download", width=50, height=10, command=lambda: read_9gag_data(folder_path.get()))
+    download_button = customtkinter.CTkButton(app, text="Download", width=50, height=10, command=lambda: start_download_progress(folder_path.get()))
     download_button.pack(padx=10, pady=10)
-    finish_label.pack(padx=10, pady=10)
+    progress_bar.pack(padx=10, pady=10)
+    progress_bar.set(0)
+    progress_bar_percentage.pack(padx=10, pady=10)
+    progress_message.pack(padx=10, pady=10)
 
 
 def main():
@@ -124,18 +150,16 @@ def main():
     app.mainloop()
 
 
-def read_9gag_data(path):
-    finish_label.configure(text="Downloading...")
-    print(path)
-    text = read_html_file("Your 9GAG data.html")
-    up_voted_ids = get_up_voted_ids(text)
-    print(up_voted_ids)
-    create_dirs_if_not_exist(path)
-    finish_label.configure(text="Finished")
-    # mock = up_voted_ids[:5]
-    # for gag_id in mock:
-    #     download_gag(gag_id)
-    #     sleep(1)
+def read_9gag_data():
+    raw_text = None
+    up_voted_ids = None
+    try:
+        raw_text = read_html_file("Your 9GAG data.html")
+        up_voted_ids = get_up_voted_ids(raw_text)
+    except FileNotFoundError:
+        print("9GAG data file not found")
+        progress_message.configure(text="9GAG data file not found", fg="red")
+    return up_voted_ids
 
 
 if __name__ == '__main__':
