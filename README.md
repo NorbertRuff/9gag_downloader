@@ -5,6 +5,42 @@ A simple python app to download your saved and uploaded gags from 9gag.
 
 It has a simple Ui, and it's easy to use.
 
+## Screenshots
+
+---
+
+![demo](https://github.com/NorbertRuff/9gag_downloader/blob/master/blob/demo.gif?raw=true)
+
+
+---
+
+![screenshot](https://github.com/NorbertRuff/9gag_downloader/blob/master/blob/screenshot1.png?raw=true)
+
+---
+
+
+
+## <div style="color:#f59800" align="center">---|💺Usage/Examples|---</div>
+
+* Request all your 9gag data from settings [here](https://9gag.com/settings/privacy)
+
+* You will receive an email with a link to download your data in a html file.
+* 
+* Download the html file and then run the app.
+
+* Select the html file as source and the destination folder where you want to save the images.
+
+* Click on the Download button and wait for the app to finish downloading.
+
+* This will create a folder named 'gags' in the selected folder and save the gags in it (images and videos).
+
+* After the download is complete, you can open the log file to see the possible errors.
+
+> Note: This app will only download the gags you upvoted or saved. It will not download the gags you commented on.
+
+> Note: This app will not download the gags which are posts or albums. It will only download the gags which are images or videos.
+
+
 # <div style="color:#f59800" align="center">---|👨‍💻 Tech Stack|---</div>
 
 Python 3.10 with Ctkinter
@@ -20,20 +56,6 @@ Python 3.10 with Ctkinter
 * pip
 * requests
 * Ctkinter
-
-## Screenshot
-
-
----
-
-![demo](https://github.com/NorbertRuff/9gag_downloader/blob/master/blob/demo.gif?raw=true)
-
-
----
-
-![screenshot](https://github.com/NorbertRuff/9gag_downloader/blob/master/blob/screenshot1.png?raw=true)
-
----
 
 
 # <div style="color:#f59800" align="center">---|🕶️Run Locally|---</div>
@@ -80,25 +102,6 @@ Start the app
   python3 main.py
 ```
 
-
-## <div style="color:#f59800" align="center">---|💺Usage/Examples|---</div>
-
-* Request your 9gag data from [here](https://9gag.com/settings/privacy)  
-
-* You will receive an email with a link to download your data in a html file.
-* Download the html file and then run the app.
-
-* Select the html file as source and the destination folder where you want to save the images.
-
-* Click on the Download button and wait for the app to finish downloading.
-
-* This will create a folder named 'gags' in the selected folder and save the gags in it (images and videos).
-
-* After the download is complete, you can open the log file to see the possible errors.
-
-> Note: This app will only download the gags you upvoted or saved. It will not download the gags you commented on.
-
-> Note: This app will not download the gags which are posts or albums. It will only download the gags which are images or videos.
 
 
 # <div style="color:#f59800" align="center">---|✍️ Contributing|---</div>
