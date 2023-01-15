@@ -1,6 +1,5 @@
 ## <div style="color:#f59800" align="center">---|9gag downloader|---</div>
 
-![logo](https://github.com/NorbertRuff/9gag_downloader/blob/master/blob/demo.gif?raw=true)
 
 A simple python app to download your saved and uploaded gags from 9gag.
 
@@ -23,6 +22,11 @@ Python 3.10 with Ctkinter
 * Ctkinter
 
 ## Screenshot
+
+
+---
+
+![demo](https://github.com/NorbertRuff/9gag_downloader/blob/master/blob/demo.gif?raw=true)
 
 
 ---
