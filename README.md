@@ -63,7 +63,7 @@ Python 3.10 with Ctkinter
 Clone the project
 
 ```bash
-  git clone https://github.com/NorbertRuff/trashBot
+  git clone https://github.com/NorbertRuff/9gag_downloader.git
 ```
 
 Go to the project directory
