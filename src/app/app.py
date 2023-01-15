@@ -35,13 +35,17 @@ class App(customtkinter.CTk):
 
         self.source_file_entry = customtkinter.CTkEntry(self.source_frame, width=self.element_width)
         self.destination_folder_entry = customtkinter.CTkEntry(self.destination_frame, width=self.element_width)
-        self.progress_bar_ui_element = customtkinter.CTkProgressBar(self.progress_frame, progress_color=Color.MAIN,
-                                                                    height=20, width=self.element_width)
+        customtkinter.CTkLabel(self.progress_frame, text="Progress:").pack(padx=self.padding, pady=self.padding,
+                                                                           side=tkinter.LEFT)
+        self.progress_bar = customtkinter.CTkProgressBar(self.progress_frame, progress_color=Color.MAIN,
+                                                         height=20, width=self.element_width)
         self.progress_bar_percentage = customtkinter.CTkLabel(self.progress_frame, text="", font=("Arial", 20))
-        self.progress_message_ui_element = customtkinter.CTkLabel(self.progress_frame, text="", font=("Arial", 16))
+        self.progress_message = customtkinter.CTkLabel(self.progress_frame, text="", font=("Arial", 16))
 
         self.download_button = customtkinter.CTkButton(self.progress_frame, text="Download", width=50, height=10,
                                                        command=self.start_download_progress)
+        self.open_log_button = customtkinter.CTkButton(self.progress_frame, text="Open Log", width=50, height=10,
+                                                       command=utils.open_log)
         self.update()
 
     def setup_custom_tkinter(self):
@@ -53,10 +57,10 @@ class App(customtkinter.CTk):
         source_file = self.get_source_file()
         destination_folder = self.get_destination_folder()
         if not source_file:
-            self.set_progress_message("Please select a source file.", color="red")
+            self.set_progress_message("Please select a source file.", color=Color.RED)
             return
         if not destination_folder:
-            self.set_progress_message("Please select a destination folder.", color="red")
+            self.set_progress_message("Please select a destination folder.", color=Color.RED)
             return
         gag_ids = self.get_gag_ids()
         if len(gag_ids) == 0:
@@ -69,11 +73,12 @@ class App(customtkinter.CTk):
         for i in range(len(gag_ids)):
             self.set_progress_bar(i / one_percent / 100, int(i / one_percent), f"Downloading gag with id: {gag_ids[i]}",
                                   color=Color.MAIN)
-            sleep(0.1)
+            # sleep(0.1)
             self.update()
             self.downloader.download_gag(gag_ids[i], destination_folder)
-        self.set_progress_bar(100, 100, "Download complete", color="green")
+        self.set_progress_bar(100, 100, "Download complete", color=Color.GREEN)
         self.set_download_button_state(tkinter.NORMAL)
+        self.open_log_button.pack(padx=self.padding, pady=self.padding)
 
     def reset_progress_bar(self):
         self.set_download_button_state(tkinter.DISABLED)
@@ -96,17 +101,17 @@ class App(customtkinter.CTk):
     def get_source_file(self):
         return self.source_file_entry.get()
 
-    def set_progress_message(self, text, color="black"):
-        self.progress_message_ui_element.configure(text=text, text_color=color)
+    def set_progress_message(self, text, color=Color.WHITE):
+        self.progress_message.configure(text=text, text_color=color)
         self.update()
 
     def set_download_button_state(self, state):
         self.download_button.configure(state=state)
 
-    def set_progress_bar(self, progress_bar_value, progress_bar_percentage, progress_bar_message, color=Color.MAIN):
-        self.progress_bar_ui_element.set(progress_bar_value)
+    def set_progress_bar(self, progress_bar_value, progress_bar_percentage, progress_bar_message, color=Color.WHITE):
+        self.progress_bar.set(progress_bar_value)
         self.progress_bar_percentage.configure(text=f"{progress_bar_percentage}%", text_color=color)
-        self.progress_message_ui_element.configure(text=progress_bar_message, text_color=color)
+        self.progress_message.configure(text=progress_bar_message, text_color=color)
         self.update()
 
     def init_ui(self):
@@ -141,10 +146,10 @@ class App(customtkinter.CTk):
 
         self.source_file_entry.pack(padx=self.padding, pady=self.padding, side=tkinter.LEFT)
         self.destination_folder_entry.pack(padx=self.padding, pady=self.padding)
-        self.progress_bar_ui_element.pack(padx=self.padding, pady=self.padding)
-        self.progress_bar_ui_element.set(0)
+        self.progress_bar.pack(padx=self.padding, pady=self.padding)
+        self.progress_bar.set(0)
         self.progress_bar_percentage.pack(padx=self.padding, pady=self.padding)
-        self.progress_message_ui_element.pack(padx=self.padding, pady=self.padding)
+        self.progress_message.pack(padx=self.padding, pady=self.padding)
         self.download_button.pack(padx=self.padding, pady=self.padding)
         self.update()
 

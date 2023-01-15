@@ -1,5 +1,3 @@
-from time import sleep
-
 import requests
 
 
@@ -45,4 +43,4 @@ class Downloader:
         result = self.try_image_download(gag_id)
         if result:
             return
-        self.logger.error("Failed to download gag with id: ", gag_id)
+        self.logger.error(f"Failed to download gag: https://9gag.com/gag/{gag_id}")

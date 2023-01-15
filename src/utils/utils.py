@@ -45,4 +45,5 @@ def get_up_voted_ids(text):
 
 
 def open_log():
-    os.startfile("../9GAG Downloader.log", 'open')
+    print(os.getcwd())
+    os.startfile("9GAG Downloader.log", 'open')
