@@ -19,28 +19,23 @@ def create_dirs_if_not_exist(selected_path):
         os.mkdir(selected_path + "/gags/videos")
 
 
-def get_up_voted_ids(text):
+def get_gag_ids(text, up_voted_line_start, up_voted_line_stop):
+    gag_ids = []
+    up_voted_html_table = text[up_voted_line_start:up_voted_line_stop]
+    up_voted_links = re.findall(r'href="(.+?)"', up_voted_html_table)
+    gag_ids.extend([up_voted.split("/")[-1] for up_voted in up_voted_links])
+    return gag_ids
+
+
+def get_up_voted_ids(text, upvoted_gags, saved_gags):
     gag_ids = []
     saved_line_start = text.find("<h3>Saved</h3>")
     up_voted_line_start = text.find("<h3>Upvotes</h3>")
     up_voted_line_stop = text.find("<h3>Downvotes</h3>")
-    if (saved_line_start == -1) and (up_voted_line_start == -1):
-        return gag_ids
-    if up_voted_line_start == -1:
-        return gag_ids
-
-    up_voted_html_table = text[up_voted_line_start:up_voted_line_stop]
-    saved_html_table = text[saved_line_start:up_voted_line_start]
-
-    saved_links = re.findall(r'href="(.+?)"', saved_html_table)
-    saved_ids = [saved.split("/")[-1] for saved in saved_links]
-
-    up_voted_links = re.findall(r'href="(.+?)"', up_voted_html_table)
-    up_voted_ids = [up_voted.split("/")[-1] for up_voted in up_voted_links]
-
-    gag_ids.extend(up_voted_ids)
-    gag_ids.extend(saved_ids)
-
+    if upvoted_gags:
+        gag_ids.extend(get_gag_ids(text, up_voted_line_start, up_voted_line_stop))
+    if saved_gags:
+        gag_ids.extend(get_gag_ids(text, saved_line_start, up_voted_line_start))
     return gag_ids
 
 
