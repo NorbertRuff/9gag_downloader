@@ -3,6 +3,8 @@
 It first checks if the gags are already downloaded.
 It first tries as video and if it fails it will try as image.
 """
+import os
+
 import requests
 from src.logger import Logger
 
@@ -23,6 +25,9 @@ class DownloadHandler:
 
     def try_video_download(self, gag_id: str) -> bool:
         """Tries to download the gag as video."""
+        if os.path.exists(f"{self.destination_folder}/{self.VIDEO_SAVE_LOCATION}/{gag_id}.mp4"):
+            self.logger.info(f"Video already downloaded: {gag_id}.mp4")
+            return True
         video_url = f"{self.BASE_URL}{gag_id}{self.VIDEO_SUFFIX}"
         response = requests.get(video_url, headers=self.HEADERS)
         if response.status_code == 200:
@@ -34,6 +39,9 @@ class DownloadHandler:
 
     def try_image_download(self, gag_id: str) -> bool:
         """Tries to download the gag as image."""
+        if os.path.exists(f"{self.destination_folder}/{self.IMAGE_SAVE_LOCATION}/{gag_id}.jpg"):
+            self.logger.info(f"Image already downloaded: {gag_id}.jpg")
+            return True
         image_url = f"{self.BASE_URL}{gag_id}{self.IMAGE_SUFFIX}"
         response = requests.get(image_url, headers=self.HEADERS)
         if response.status_code == 200:
