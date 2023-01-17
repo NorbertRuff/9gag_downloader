@@ -25,10 +25,12 @@ It has a simple Ui, and it's easy to use.
 * Request all your 9gag data from settings [here](https://9gag.com/settings/privacy)
 
 * You will receive an email with a link to download your data in a html file.
-* 
+
 * Download the html file and then run the app.
 
-* Select the html file as source and the destination folder where you want to save the images.
+* Select the "Your 9GAG data.html" file as source and the destination folder where you want to save the images.
+
+* You can download your saved gags or your uploaded gags.
 
 * Click on the Download button and wait for the app to finish downloading.
 
@@ -47,8 +49,10 @@ Python 3.10 with Ctkinter
 
 # Packages
 
-* requests
-* Ctkinter
+customtkinter~=5.0.3
+requests~=2.28.2
+pip==22.3.1
+setuptools==66.0.0
 
 # Requirements
 
@@ -72,7 +76,7 @@ Go to the project directory
   cd my-project
 ```
 
-> pip3 comes with python3, so you don't need to install it separately.
+> pip3 comes with python3, so you don't need to install it separately. Check if you have pip3 installed by running:
 >
 > ```bash
 > pip3 --version
