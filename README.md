@@ -49,10 +49,10 @@ Python 3.10 with Ctkinter
 
 # Packages
 
-customtkinter~=5.0.3
-requests~=2.28.2
-pip==22.3.1
-setuptools==66.0.0
+* customtkinter~=5.0.3  
+* requests~=2.28.2  
+* pip==22.3.1  
+* setuptools==66.0.0  
 
 # Requirements
 
@@ -73,10 +73,11 @@ Clone the project
 Go to the project directory
 
 ```bash
-  cd my-project
+  cd 9gag_downloader
 ```
 
-> pip3 comes with python3, so you don't need to install it separately. Check if you have pip3 installed by running:
+> pip3 comes with python3, so you don't need to install it separately. 
+> Check if it is running:
 >
 > ```bash
 > pip3 --version
