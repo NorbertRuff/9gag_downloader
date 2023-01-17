@@ -8,7 +8,6 @@ app = App(downloader=downloader, logger=logger)
 
 
 def main():
-    app.init_ui()
     app.mainloop()
 
 
