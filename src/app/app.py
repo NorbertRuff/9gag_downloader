@@ -1,8 +1,13 @@
+""" Class for the main window.
+
+This class is the frame for the main window.
+It contains all the subframes and the main loop.
+"""
+
 import tkinter
 from time import sleep
 
 import customtkinter as ctk
-
 from src import utils
 from src.app.checkboxes import Checkboxes
 from src.app.destination_folder_frame import DestinationFrame
@@ -10,49 +15,43 @@ from src.app.download_frame import DownloadFrame
 from src.app.header import Header
 from src.app.progress_bar import ProgressBar
 from src.app.source_file_frame import SourceFrame
-from src.download_handler import Downloader
+from src.download_handler import DownloadHandler
 from src.logger import Logger
-from src.utils import Color
+from src.utils import Color, Theme
 
 
 class App(ctk.CTk):
-    border_width = 1
-    border_color = Color.MAIN
-    padding = 10
-    element_width = 1000
-
-    def __init__(self, downloader: Downloader, logger: Logger):
+    def __init__(self, downloader: DownloadHandler, theme: Theme, logger: Logger):
         super().__init__()
         self.downloader = downloader
+        self.theme = theme
         self.logger = logger
         self.setup_custom_tkinter()
-        ctk.CTkLabel(self, text="9GAG Downloader", font=("Arial", 20)).grid(row=0, column=0, columnspan=2, sticky=tkinter.W + tkinter.E)
-        self.header = Header(self, padding=self.padding)
-        self.checkboxes_frame = Checkboxes(self, padding=self.padding, border_width=self.border_width, border_color=self.border_color)
-        self.source_frame = SourceFrame(self, padding=self.padding, width=self.element_width,
-                                        border_width=self.border_width, border_color=self.border_color)
-        self.destination_frame = DestinationFrame(self, padding=self.padding, width=self.element_width,
-                                                  border_width=self.border_width, border_color=self.border_color)
-        self.progress_frame = ProgressBar(self, padding=self.padding, width=self.element_width,
-                                          border_width=self.border_width, border_color=self.border_color)
-        self.download_frame = DownloadFrame(self, padding=self.padding, border_width=self.border_width,
-                                            border_color=self.border_color,
-                                            start_download_callback=self.start_download_progress)
+        ctk.CTkLabel(self, text="9GAG Downloader", font=("Arial", 20)).grid(row=0, column=0, columnspan=2,
+                                                                            sticky=tkinter.W + tkinter.E)
+        self.header = Header(self, theme=self.theme)
+        self.checkboxes_frame = Checkboxes(self, theme=self.theme)
+        self.source_frame = SourceFrame(self, theme=self.theme)
+        self.destination_frame = DestinationFrame(self, theme=self.theme)
+        self.progress_frame = ProgressBar(self, theme=self.theme)
+        self.download_frame = DownloadFrame(self, theme=self.theme, start_download_callback=self.start_download_progress)
         self.header.grid(row=1, column=0, columnspan=1, sticky=tkinter.W + tkinter.E)
-        self.checkboxes_frame.grid(row=1, column=1, columnspan=1, sticky=tkinter.W + tkinter.E )
+        self.checkboxes_frame.grid(row=1, column=1, columnspan=1, sticky=tkinter.W + tkinter.E)
         self.source_frame.grid(row=2, column=0, columnspan=2, sticky=tkinter.W + tkinter.E)
         self.destination_frame.grid(row=3, column=0, columnspan=2, sticky=tkinter.W + tkinter.E)
         self.download_frame.grid(row=4, column=0, columnspan=2, sticky=tkinter.W + tkinter.E)
         self.update()
 
     def setup_custom_tkinter(self):
+        """ Sets up the app to use customtkinter like themes and main grid."""
         self.title("9GAG Downloader")
-        self.geometry("1024x768")
-        ctk.set_appearance_mode("dark")
+        self.geometry(self.theme.geometry)
+        ctk.set_appearance_mode(self.theme.appearance_mode)
         self.grid_rowconfigure(6, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
     def start_download_progress(self):
+        """ Starts the download progress."""
         source_file = self.source_frame.get_entry_value()
         destination_folder = self.destination_frame.get_entry_value()
         saved_gags_check = self.checkboxes_frame.get_saved_gags_var()
@@ -88,6 +87,7 @@ class App(ctk.CTk):
         self.update()
 
     def get_gag_ids(self, upvoted_gags_check, saved_gags_check):
+        """ Returns a list of gag ids from the source file."""
         found_gag_ids = None
         try:
             raw_text = utils.read_html_file(self.source_frame.get_entry_value())
@@ -99,4 +99,5 @@ class App(ctk.CTk):
         return found_gag_ids
 
     def set_progress_message(self, text, color=Color.WHITE):
+        """ Sets the main message to the given text and color."""
         self.download_frame.set_progress_message(text=text, color=color)

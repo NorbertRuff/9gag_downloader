@@ -1,2 +1,2 @@
-from .downloader import Downloader
+from .download_handler import DownloadHandler
 

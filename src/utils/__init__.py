@@ -1,2 +1,2 @@
 from .utils import *
-from .colors import Color
+from .theme import Color, Theme

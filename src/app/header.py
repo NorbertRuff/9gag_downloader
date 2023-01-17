@@ -1,13 +1,20 @@
+"""Contains the Header class.
+
+This class is responsible for the header of the app.
+It contains the description
+"""
+
 import tkinter
 
 import customtkinter as ctk
+from src.utils import Theme
 
 
 class Header(ctk.CTkFrame):
-    def __init__(self, *args, padding, **kwargs):
+    def __init__(self, *args, theme: Theme, **kwargs):
         super().__init__(*args, **kwargs)
         self.description_frame = ctk.CTkFrame(self)
-        self.description_frame.pack(padx=padding, pady=padding, fill=tkinter.X)
+        self.description_frame.pack(padx=theme.padding, pady=theme.padding, fill=tkinter.X)
         ctk.CTkLabel(self.description_frame, text="""
         This app will download all the gags you upvoted or saved on 9GAG.
         
@@ -19,4 +26,4 @@ class Header(ctk.CTkFrame):
         
         Note: This app will only download the gags you upvoted or saved. It will not download the gags you commented on.
         Note: This app will not download the gags which are posts or albums. It will only download the gags which are images or videos.
-        """, font=("Arial", 14)).pack(padx=padding, pady=padding)
+        """, font=("Arial", 14)).pack(padx=theme.padding, pady=theme.padding)
