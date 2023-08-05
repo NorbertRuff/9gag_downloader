@@ -51,8 +51,7 @@ Python 3.10 with Ctkinter
 
 * customtkinter~=5.0.3  
 * requests~=2.28.2  
-* pip==22.3.1  
-* setuptools==66.0.0  
+* beautifulsoup4~=4.12.2
 
 # Requirements
 
@@ -60,6 +59,7 @@ Python 3.10 with Ctkinter
 * pip
 * requests
 * Ctkinter
+* beautifulsoup4~=4.12.2
 
 
 # <div style="color:#f59800" align="center">---|🕶️Run Locally|---</div>
