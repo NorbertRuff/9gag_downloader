@@ -5,7 +5,6 @@ It contains all the subframes and the main loop.
 """
 
 import tkinter
-from time import sleep
 
 import customtkinter as ctk
 from src import utils
@@ -34,7 +33,8 @@ class App(ctk.CTk):
         self.source_frame = SourceFrame(self, theme=self.theme)
         self.destination_frame = DestinationFrame(self, theme=self.theme)
         self.progress_frame = ProgressBar(self, theme=self.theme)
-        self.download_frame = DownloadFrame(self, theme=self.theme, start_download_callback=self.start_download_progress)
+        self.download_frame = DownloadFrame(self, theme=self.theme,
+                                            start_download_callback=self.start_download_progress)
         self.header.grid(row=1, column=0, columnspan=1, sticky=tkinter.W + tkinter.E)
         self.checkboxes_frame.grid(row=1, column=1, columnspan=1, sticky=tkinter.W + tkinter.E)
         self.source_frame.grid(row=2, column=0, columnspan=2, sticky=tkinter.W + tkinter.E)
@@ -65,38 +65,37 @@ class App(ctk.CTk):
         if (not saved_gags_check) and (not upvoted_gags_check):
             self.set_progress_message("Please select at least one option.", color=Color.RED)
             return
-        gag_ids = self.get_gag_ids(upvoted_gags_check, saved_gags_check)
-        if not gag_ids:
+        gags = self.scrape_gag_details(upvoted_gags_check, saved_gags_check)
+        if not gags:
             self.logger.error("No upvoted or saved gags found")
             self.set_progress_message(text="No upvoted or saved gags found", color=Color.RED)
             return
         self.progress_frame.forget()
         self.progress_frame.grid(row=5, column=0, columnspan=2, sticky=tkinter.W + tkinter.E)
         utils.create_dirs_if_not_exist(destination_folder)
-        one_percent = len(gag_ids) / 100
-        for i in range(len(gag_ids)):
+        one_percent = len(gags) / 100
+        for i in range(len(gags)):
             self.progress_frame.set_progress_bar(i / one_percent / 100, int(i / one_percent), color=Color.MAIN)
-            self.set_progress_message(f"Downloading gag with id: {gag_ids[i]}", color=Color.GREEN)
+            self.set_progress_message(f"Downloading gag with id: {gags[i]}", color=Color.GREEN)
             # sleep(0.05)
             self.update()
-            self.downloader.download_gag(gag_ids[i], destination_folder)
+            self.downloader.download_gag(gags[i], destination_folder)
         self.progress_frame.set_progress_bar(100, 100, color=Color.GREEN)
         self.set_progress_message("Download finished", color=Color.GREEN)
         self.download_frame.enable_download_button()
         self.progress_frame.pack_open_log_button()
         self.update()
 
-    def get_gag_ids(self, upvoted_gags_check, saved_gags_check):
+    def scrape_gag_details(self, upvoted_gags_check, saved_gags_check):
         """ Returns a list of gag ids from the source file."""
-        found_gag_ids = None
+        found_gags = None
         try:
-            raw_text = utils.read_html_file(self.source_frame.get_entry_value())
-            found_gag_ids = utils.get_up_voted_ids(raw_text, upvoted_gags=upvoted_gags_check,
-                                                   saved_gags=saved_gags_check)
+            soup = utils.read_html_file(self.source_frame.get_entry_value())
+            found_gags = utils.extract_gags(soup, upvoted_gags=upvoted_gags_check, saved_gags=saved_gags_check)
         except FileNotFoundError:
             self.logger.error("9GAG data file not found")
             self.set_progress_message(text="9GAG data file not found", color=Color.RED)
-        return found_gag_ids
+        return found_gags
 
     def set_progress_message(self, text, color=Color.WHITE):
         """ Sets the main message to the given text and color."""

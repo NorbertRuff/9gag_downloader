@@ -1,14 +1,18 @@
 """ Helper functions """
 
 import os
-import re
+from typing import TypeAlias
+
+from bs4 import BeautifulSoup
+
+GagDetails: TypeAlias = list[dict[str, str]]
 
 
-def read_html_file(file_name: str) -> str:
+def read_html_file(file_name: str) -> BeautifulSoup:
     """ reads the html file and returns as text """
-    with open(file_name, "r", encoding='utf-8') as f:
-        text = f.read()
-        return text
+    with open(file_name) as fp:
+        soup = BeautifulSoup(fp, 'html.parser')
+        return soup
 
 
 def create_dirs_if_not_exist(selected_path: str) -> None:
@@ -23,26 +27,27 @@ def create_dirs_if_not_exist(selected_path: str) -> None:
         os.mkdir(selected_path + "/gags/videos")
 
 
-def get_gag_ids(text: str, up_voted_line_start: int, up_voted_line_stop: int) -> list:
+def get_gag_details(table: BeautifulSoup) -> GagDetails:
     """ returns a list of gag ids """
-    gag_ids = []
-    up_voted_html_table = text[up_voted_line_start:up_voted_line_stop]
-    up_voted_links = re.findall(r'href="(.+?)"', up_voted_html_table)
-    gag_ids.extend([up_voted.split("/")[-1] for up_voted in up_voted_links])
-    return gag_ids
+    gags: GagDetails = []
+    for tr in table.find_all('tr'):
+        columns = tr.find_all('td')
+        if columns:
+            gags.append({'id': columns[1].a['href'].split('/')[-1],
+                'title': columns[2].text if columns[2].text else "No Title", })
+    return gags
 
 
-def get_up_voted_ids(text: str, upvoted_gags: bool, saved_gags: bool) -> list:
-    """ returns a list of upvoted gag ids """
-    gag_ids = []
-    saved_line_start = text.find("<h3>Saved</h3>")
-    up_voted_line_start = text.find("<h3>Upvotes</h3>")
-    up_voted_line_stop = text.find("<h3>Downvotes</h3>")
+def extract_gags(soup: BeautifulSoup, upvoted_gags: bool, saved_gags: bool) -> GagDetails:
+    """ returns the scraped gag details """
+    gags: GagDetails = []
     if upvoted_gags:
-        gag_ids.extend(get_gag_ids(text, up_voted_line_start, up_voted_line_stop))
+        up_votes = soup.find_all("h3", text="Upvotes")[0].find_next("table")
+        gags.extend(get_gag_details(up_votes))
     if saved_gags:
-        gag_ids.extend(get_gag_ids(text, saved_line_start, up_voted_line_start))
-    return gag_ids
+        saved = soup.find_all("h3", text="Saved")[0].find_next("table")
+        gags.extend(get_gag_details(saved))
+    return gags
 
 
 def open_log() -> None:

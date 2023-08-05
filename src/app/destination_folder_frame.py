@@ -14,7 +14,7 @@ class DestinationFrame(ctk.CTkFrame):
         super().__init__(*args, **kwargs)
         self.destination_frame = ctk.CTkFrame(self, border_width=theme.border_width, border_color=theme.border_color)
         self.destination_folder_entry = ctk.CTkEntry(self.destination_frame, width=theme.element_width)
-        self.destination_folder_entry.insert(0, "/home/ruff/projects/9gag_downloader/")
+        self.destination_folder_entry.insert(0, "C:/gags")
 
         ctk.CTkLabel(self.destination_frame, text="Destination Folder: ", font=("Arial", 12)).pack(padx=theme.padding,
                                                                                                    pady=theme.padding,
