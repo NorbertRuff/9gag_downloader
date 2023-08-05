@@ -16,7 +16,7 @@ class SourceFrame(ctk.CTkFrame):
         self.source_frame = ctk.CTkFrame(self, border_width=theme.border_width, border_color=theme.border_color)
         self.source_file_entry = ctk.CTkEntry(self.source_frame, width=theme.element_width)
 
-        self.source_file_entry.insert(0, "/home/ruff/projects/9gag_downloader/input/Your 9GAG data.html")
+        self.source_file_entry.insert(0, "C:/Your 9GAG data.html")
 
         ctk.CTkLabel(self.source_frame, text="Source File: ", font=("Arial", 12)).pack(padx=theme.padding,
                                                                                        pady=theme.padding,

@@ -18,6 +18,8 @@ class Checkboxes(ctk.CTkFrame):
         ctk.CTkLabel(self.checkboxes_frame, text="Options:").pack(padx=theme.padding, pady=theme.padding)
         saved_checkbox = ctk.CTkCheckBox(master=self, text="Saved Gags", variable=self.saved_gags_var)
         upvoted_checkbox = ctk.CTkCheckBox(master=self, text="Upvoted Gags", variable=self.upvoted_gags_var)
+        upvoted_checkbox.select()
+        self.upvoted_gags_var.set(True)
         self.checkboxes_frame.pack(padx=theme.padding, pady=theme.padding, fill=tkinter.X)
         saved_checkbox.pack(padx=theme.padding, pady=theme.padding)
         upvoted_checkbox.pack(padx=theme.padding, pady=theme.padding)
