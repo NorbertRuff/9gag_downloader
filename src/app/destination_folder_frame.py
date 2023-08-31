@@ -19,7 +19,7 @@ class DestinationFrame(ctk.CTkFrame):
         ctk.CTkLabel(self.destination_frame, text="Destination Folder: ", font=("Arial", 12)).pack(padx=theme.padding,
                                                                                                    pady=theme.padding,
                                                                                                    side=tkinter.LEFT)
-        destination_folder_select_button = ctk.CTkButton(self.destination_frame, text="Select Folder.html", width=20)
+        destination_folder_select_button = ctk.CTkButton(self.destination_frame, text="Select destination Folder", width=20)
         destination_folder_select_button.pack(padx=theme.padding, pady=theme.padding, side=tkinter.RIGHT)
         destination_folder_select_button.bind("<Button-1>", lambda event: self.select_destination_folder())
         self.destination_frame.pack(padx=theme.padding, pady=theme.padding, fill=tkinter.X)
