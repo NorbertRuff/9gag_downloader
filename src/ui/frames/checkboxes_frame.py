@@ -44,17 +44,15 @@ class CheckboxesFrame(ctk.CTkFrame):
             border_color=self.theme.border_color,
         )
 
-        # Add title label
-        ctk.CTkLabel(options_frame, text="Options:", font=("Arial", 14, "bold")).pack(
-            padx=self.theme.padding, pady=self.theme.padding
+        title_label = ctk.CTkLabel(
+            options_frame, text="Options:", font=self.theme.title_font, anchor="w"
         )
 
-        # Create a frame for checkboxes to be placed horizontally
-        checkboxes_container = ctk.CTkFrame(options_frame, fg_color="transparent")
+        title_label.pack(anchor="w", pady=(0, self.theme.small_padding))
 
         # Create checkboxes
         self.saved_checkbox = ctk.CTkCheckBox(
-            master=checkboxes_container,
+            master=options_frame,
             text="Saved Gags",
             variable=self.saved_gags_var,
             font=("Arial", 12),
@@ -67,7 +65,7 @@ class CheckboxesFrame(ctk.CTkFrame):
         )
 
         self.upvoted_checkbox = ctk.CTkCheckBox(
-            master=checkboxes_container,
+            master=options_frame,
             text="Upvoted Gags",
             variable=self.upvoted_gags_var,
             font=("Arial", 12),
@@ -85,7 +83,7 @@ class CheckboxesFrame(ctk.CTkFrame):
         )
 
         # Pack the checkboxes container
-        checkboxes_container.pack(
+        options_frame.pack(
             padx=self.theme.padding, pady=self.theme.padding, fill=tk.X, expand=True
         )
 

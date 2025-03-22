@@ -47,13 +47,21 @@ class DownloadFrame(ctk.CTkFrame):
         message_container = ctk.CTkFrame(container, fg_color="transparent")
         message_container.pack(fill=tk.X, pady=(0, self.theme.padding), expand=True)
 
+        # Configure grid for icon and message
+        message_container.grid_columnconfigure(0, weight=0)  # Icon column
+        message_container.grid_columnconfigure(1, weight=1)  # Message column
+
         # Create status icon (initially hidden)
         self.status_icon = ctk.CTkLabel(
             message_container,
             text="",
-            font=("Segoe UI", 18),
-            width=30,
+            font=("Segoe UI", 20, "bold"),
+            width=40,
+            height=40,
+            corner_radius=8,
+            anchor="center",
             text_color=Color.SUCCESS,
+            fg_color="transparent",
         )
 
         # Create progress message with background that matches the frame
@@ -64,12 +72,12 @@ class DownloadFrame(ctk.CTkFrame):
             wraplength=800,
             height=40,
             corner_radius=self.theme.corner_radius // 2,
-            anchor="center",
+            anchor="w",
             fg_color="transparent",
         )
 
-        # Pack the message (icon will be shown when needed)
-        self.progress_message.pack(fill=tk.X, expand=True)
+        # Place the message (icon will be shown when needed)
+        self.progress_message.grid(row=0, column=1, padx=(0, 5), sticky=tk.W)
 
         # Create button container for centering
         button_container = ctk.CTkFrame(container, fg_color="transparent")
@@ -113,11 +121,11 @@ class DownloadFrame(ctk.CTkFrame):
             self.status_icon.configure(text="⚠", text_color=Color.WARNING)
         else:
             # Hide icon for neutral status
-            self.status_icon.pack_forget()
+            self.status_icon.grid_forget()
             return
 
-        # Show the icon
-        self.status_icon.pack(side=tk.LEFT, padx=(0, 10))
+        # Show the icon with proper alignment
+        self.status_icon.grid(row=0, column=0, padx=(5, 10), sticky=tk.W)
 
     def _on_download_click(self) -> None:
         """Handle the download button click event."""
