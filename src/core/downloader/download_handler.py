@@ -4,13 +4,21 @@ It first checks if the gags are already downloaded.
 It first tries as video and if it fails it will try as image.
 """
 
-import os
 import re
+from enum import Enum, auto
 from pathlib import Path
+from typing import Tuple
 
 import requests
 from src.core.models import Gag
 from src.utils.logging import Logger
+
+
+class ContentType(Enum):
+    """Type of content to download."""
+
+    VIDEO = auto()
+    IMAGE = auto()
 
 
 class DownloadHandler:
@@ -26,92 +34,147 @@ class DownloadHandler:
     }
 
     def __init__(self, logger: Logger):
+        """Initialize the download handler.
+
+        Args:
+            logger: Logger instance for logging messages.
+        """
         self.destination_folder = ""
         self.logger = logger
 
-    def try_video_download(self, gag: Gag) -> bool:
-        """Tries to download the gag as video."""
-        sanitized_title = re.sub(r'[\\/*?:"<>|]', "", gag.title)
-        sanitized_title = sanitized_title[:100]
+    def _get_content_info(self, content_type: ContentType) -> Tuple[str, str, str]:
+        """Get file extension, suffix, and save location based on content type.
 
-        # Create path using pathlib for better cross-platform compatibility
-        video_path = (
+        Args:
+            content_type: Type of content (VIDEO or IMAGE).
+
+        Returns:
+            Tuple of (file_extension, url_suffix, save_location).
+        """
+        if content_type == ContentType.VIDEO:
+            return ".mp4", self.VIDEO_SUFFIX, self.VIDEO_SAVE_LOCATION
+        else:  # ContentType.IMAGE
+            return ".jpg", self.IMAGE_SUFFIX, self.IMAGE_SAVE_LOCATION
+
+    def _sanitize_title(self, title: str) -> str:
+        """Sanitize a title for use in filenames.
+
+        Args:
+            title: Title to sanitize.
+
+        Returns:
+            Sanitized title.
+        """
+        sanitized = re.sub(r'[\\/*?:"<>|]', "", title)
+        return sanitized[:100]  # Limit length to 100 chars
+
+    def _try_download(self, gag: Gag, content_type: ContentType) -> bool:
+        """Try to download gag content of a specific type.
+
+        Args:
+            gag: Gag to download.
+            content_type: Type of content to try downloading.
+
+        Returns:
+            True if download was successful, False otherwise.
+        """
+        # Get info based on content type
+        file_ext, url_suffix, save_location = self._get_content_info(content_type)
+        content_type_name = content_type.name.lower()
+
+        # Sanitize title
+        sanitized_title = self._sanitize_title(gag.title)
+
+        # Create path
+        file_path = (
             Path(self.destination_folder)
-            / self.VIDEO_SAVE_LOCATION
-            / f"{sanitized_title}.mp4"
+            / save_location
+            / f"{sanitized_title}{file_ext}"
         )
 
-        if video_path.exists():
-            self.logger.info(f"Video already downloaded: {sanitized_title}.mp4")
+        # Check if already downloaded
+        if file_path.exists():
+            self.logger.info(
+                f"{content_type_name.capitalize()} already downloaded: {file_path.name}"
+            )
+
+            # Update gag with info
+            gag.is_video = content_type == ContentType.VIDEO
+            gag.url = str(file_path)
             return True
 
-        video_url = f"{self.BASE_URL}{gag.id}{self.VIDEO_SUFFIX}"
-        response = requests.get(video_url, headers=self.HEADERS)
+        # Download content
+        content_url = f"{self.BASE_URL}{gag.id}{url_suffix}"
+        try:
+            response = requests.get(content_url, headers=self.HEADERS, timeout=10)
 
-        if response.status_code == 200:
-            self.logger.info(f"Video Downloaded as {sanitized_title}.mp4")
+            if response.status_code == 200:
+                self.logger.info(
+                    f"{content_type_name.capitalize()} downloaded as {file_path.name}"
+                )
 
-            # Ensure directory exists
-            video_path.parent.mkdir(parents=True, exist_ok=True)
+                # Ensure directory exists
+                file_path.parent.mkdir(parents=True, exist_ok=True)
 
-            with open(video_path, "wb") as f:
-                f.write(response.content)
+                # Save content
+                with open(file_path, "wb") as f:
+                    f.write(response.content)
 
-            # Update gag with info that it's a video
-            gag.is_video = True
-            gag.url = str(video_path)
-            return True
+                # Update gag with info
+                gag.is_video = content_type == ContentType.VIDEO
+                gag.url = str(file_path)
+                return True
+
+        except requests.RequestException as e:
+            self.logger.error(f"Error downloading {content_type_name}: {str(e)}")
 
         return False
+
+    def try_video_download(self, gag: Gag) -> bool:
+        """Try to download the gag as a video.
+
+        Args:
+            gag: Gag to download.
+
+        Returns:
+            True if video download was successful, False otherwise.
+        """
+        return self._try_download(gag, ContentType.VIDEO)
 
     def try_image_download(self, gag: Gag) -> bool:
-        """Tries to download the gag as image."""
-        sanitized_title = re.sub(r'[\\/*?:"<>|]', "", gag.title)
-        sanitized_title = sanitized_title[:100]
+        """Try to download the gag as an image.
 
-        # Create path using pathlib for better cross-platform compatibility
-        image_path = (
-            Path(self.destination_folder)
-            / self.IMAGE_SAVE_LOCATION
-            / f"{sanitized_title}.jpg"
-        )
+        Args:
+            gag: Gag to download.
 
-        if image_path.exists():
-            self.logger.info(f"Image already downloaded: {sanitized_title}.jpg")
-            return True
+        Returns:
+            True if image download was successful, False otherwise.
+        """
+        return self._try_download(gag, ContentType.IMAGE)
 
-        image_url = f"{self.BASE_URL}{gag.id}{self.IMAGE_SUFFIX}"
-        response = requests.get(image_url, headers=self.HEADERS)
+    def download_gag(self, gag: Gag, destination_folder: str) -> bool:
+        """Download a gag, trying first as video then as image.
 
-        if response.status_code == 200:
-            self.logger.info(f"Image Downloaded as {sanitized_title}.jpg")
+        Args:
+            gag: Gag to download.
+            destination_folder: Folder to save the downloaded content.
 
-            # Ensure directory exists
-            image_path.parent.mkdir(parents=True, exist_ok=True)
-
-            with open(image_path, "wb") as f:
-                f.write(response.content)
-
-            # Update gag with info that it's an image
-            gag.is_video = False
-            gag.url = str(image_path)
-            return True
-
-        return False
-
-    def download_gag(self, gag: Gag, destination_folder: str) -> None:
-        """Download logic for a specific gag."""
+        Returns:
+            True if download was successful, False otherwise.
+        """
         self.destination_folder = destination_folder
 
         # Ensure base directories exist
         Path(destination_folder).mkdir(parents=True, exist_ok=True)
 
-        result = self.try_video_download(gag)
-        if result:
-            return
+        # Try downloading as video first
+        if self.try_video_download(gag):
+            return True
 
-        result = self.try_image_download(gag)
-        if result:
-            return
+        # If video download fails, try as image
+        if self.try_image_download(gag):
+            return True
 
+        # Both download attempts failed
         self.logger.error(f"Failed to download gag: {gag.full_url}")
+        return False

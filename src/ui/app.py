@@ -187,6 +187,10 @@ class App(ctk.CTk):
         total_gags = len(gags)
         one_percent = total_gags / 100 if total_gags > 0 else 1
 
+        # Download statistics
+        successful = 0
+        failed = 0
+
         # Download each gag
         for i, gag in enumerate(gags):
             # Update progress
@@ -206,11 +210,24 @@ class App(ctk.CTk):
             self.update()
 
             # Download the gag
-            self.downloader.download_gag(gag, destination_folder)
+            if self.downloader.download_gag(gag, destination_folder):
+                successful += 1
+            else:
+                failed += 1
 
         # Update progress to complete
         self.progress_frame.set_progress_bar(1.0, 100, color=Color.SUCCESS)
-        self.set_progress_message("Download finished", color=Color.SUCCESS)
+
+        # Show final status
+        if failed > 0:
+            self.set_progress_message(
+                f"Download finished: {successful} successful, {failed} failed",
+                color=Color.WARNING if failed > 0 else Color.SUCCESS,
+            )
+        else:
+            self.set_progress_message(
+                f"All {successful} gags downloaded successfully!", color=Color.SUCCESS
+            )
 
         # Enable UI elements
         self.download_frame.enable_download_button()
