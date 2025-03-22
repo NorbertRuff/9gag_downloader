@@ -1,9 +1,38 @@
 ## <div style="color:#f59800" align="center">---|9gag downloader|---</div>
 
-
 A simple python app to download your saved and uploaded gags from 9gag.
 
-It has a simple Ui, and it's easy to use.
+It has a simple UI, and it's easy to use.
+
+## Installation
+
+### Option 1: Install as a package
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/9gag_downloader.git
+cd 9gag_downloader
+
+# Install the package
+pip install -e .
+
+# Run the application
+9gag-downloader
+```
+
+### Option 2: Run directly
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/9gag_downloader.git
+cd 9gag_downloader
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the application
+python main.py
+```
 
 ## Screenshots
 
@@ -11,14 +40,11 @@ It has a simple Ui, and it's easy to use.
 
 ![demo](https://github.com/NorbertRuff/9gag_downloader/blob/master/blob/demo.gif?raw=true)
 
-
 ---
 
 ![screenshot](https://github.com/NorbertRuff/9gag_downloader/blob/master/blob/screenshot1.png?raw=true)
 
 ---
-
-
 
 ## <div style="color:#f59800" align="center">---|💺Usage/Examples|---</div>
 
@@ -42,7 +68,6 @@ It has a simple Ui, and it's easy to use.
 
 > Note: This app will not download the gags which are posts or albums. It will only download the gags which are images or videos.
 
-
 # <div style="color:#f59800" align="center">---|👨‍💻 Tech Stack|---</div>
 
 Python 3.10 with Ctkinter
@@ -60,7 +85,6 @@ Python 3.10 with Ctkinter
 * requests
 * Ctkinter
 * beautifulsoup4~=4.12.2
-
 
 # <div style="color:#f59800" align="center">---|📝 How to use|---</div>
 
@@ -84,7 +108,7 @@ Go to the project directory
   cd 9gag_downloader
 ```
 
-> pip3 comes with python3, so you don't need to install it separately. 
+> pip3 comes with python3, so you don't need to install it separately.
 > Check if it is running:
 >
 > ```bash
@@ -115,8 +139,6 @@ Start the app
   python3 main.py
 ```
 
-
-
 # <div style="color:#f59800" align="center">---|✍️ Contributing|---</div>
 
 Contributions, issues and feature requests are welcome!<br/>
@@ -128,10 +150,10 @@ Give a ⭐️ if this project helped you!
 <h3 align="center">A passionate developer from Apex Lab Hungary</h3>
 
 ```markdown
-- 💼 I’m working at Apex Lab 🚀
-- 🔭 I’m working on developing my front-end and back-end skills.
-- 🎓 I’ve learned programming at Codecool.
-- 👯 I’m looking for fun projects to contribute to. 
+- 💼 I'm working at Apex Lab 🚀
+- 🔭 I'm working on developing my front-end and back-end skills.
+- 🎓 I've learned programming at Codecool.
+- 👯 I'm looking for fun projects to contribute to. 
 - 🥅 2023 Goals: Have fun and learn as much as I can.
 - 💬 I like to tinker with forgotten or not so popular technologies.
 - 🧗 I try to go beyond and push the bounds.
