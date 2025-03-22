@@ -28,9 +28,9 @@ class HeaderFrame(ctk.CTkFrame):
 
     def _create_widgets(self) -> None:
         """Create and place the widgets in the frame."""
-        description_frame = ctk.CTkFrame(self)
+        description_frame = ctk.CTkFrame(self, fg_color="transparent")
         description_frame.pack(
-            padx=self.theme.padding, pady=self.theme.padding, fill=tk.X
+            padx=self.theme.padding, pady=self.theme.padding, fill=tk.BOTH, expand=True
         )
 
         ctk.CTkLabel(
@@ -38,8 +38,14 @@ class HeaderFrame(ctk.CTkFrame):
             text=self._get_description_text(),
             font=("Arial", 14),
             justify=tk.LEFT,
-            wraplength=400,
-        ).pack(padx=self.theme.padding, pady=self.theme.padding)
+            wraplength=600,
+            anchor="w",
+        ).pack(
+            padx=self.theme.padding * 2,
+            pady=self.theme.padding * 1.5,
+            fill=tk.BOTH,
+            expand=True,
+        )
 
     def _get_description_text(self) -> str:
         """Get the description text for the application.
@@ -47,8 +53,7 @@ class HeaderFrame(ctk.CTkFrame):
         Returns:
             Description text.
         """
-        return """
-This app will download all the gags you upvoted or saved on 9GAG.
+        return """This app will download all the gags you upvoted or saved on 9GAG.
 
 Request your 9GAG data from https://9gag.com/settings/privacy
 You will receive an email with a link to download your data as an HTML file.
@@ -57,5 +62,4 @@ Select the folder where you want to save the gags and click on the Download butt
 This will create a folder named 'gags' in the selected folder and save the gags in it.
 
 Note: This app will only download the gags you upvoted or saved.
-Note: This app will not download posts or albums, only images and videos.
-"""
+Note: This app will not download posts or albums, only images and videos."""
