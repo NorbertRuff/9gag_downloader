@@ -4,7 +4,7 @@ This frame contains checkboxes for selecting which types of gags to download.
 """
 
 import tkinter as tk
-from typing import Any, Dict
+from typing import Any, Callable, Dict, Optional
 
 import customtkinter as ctk
 
@@ -29,7 +29,11 @@ class CheckboxesFrame(ctk.CTkFrame):
         self.saved_gags_var = tk.BooleanVar()
         self.upvoted_gags_var = tk.BooleanVar(value=True)  # Default selection
 
+        # Callback for when checkboxes change
+        self.checkbox_changed_callback: Optional[Callable[[bool, bool], None]] = None
+
         self._create_widgets()
+        self._bind_events()
 
     def _create_widgets(self) -> None:
         """Create and place the widgets in the frame."""
@@ -46,7 +50,7 @@ class CheckboxesFrame(ctk.CTkFrame):
         )
 
         # Create checkboxes
-        saved_checkbox = ctk.CTkCheckBox(
+        self.saved_checkbox = ctk.CTkCheckBox(
             master=options_frame,
             text="Saved Gags",
             variable=self.saved_gags_var,
@@ -56,9 +60,10 @@ class CheckboxesFrame(ctk.CTkFrame):
             border_width=2,
             corner_radius=4,
             hover=True,
+            command=self._on_checkbox_change,
         )
 
-        upvoted_checkbox = ctk.CTkCheckBox(
+        self.upvoted_checkbox = ctk.CTkCheckBox(
             master=options_frame,
             text="Upvoted Gags",
             variable=self.upvoted_gags_var,
@@ -68,6 +73,7 @@ class CheckboxesFrame(ctk.CTkFrame):
             border_width=2,
             corner_radius=4,
             hover=True,
+            command=self._on_checkbox_change,
         )
 
         # Pack the frame and checkboxes
@@ -75,8 +81,31 @@ class CheckboxesFrame(ctk.CTkFrame):
             padx=self.theme.padding, pady=self.theme.padding, fill=tk.BOTH, expand=True
         )
 
-        saved_checkbox.pack(padx=self.theme.padding, pady=self.theme.padding)
-        upvoted_checkbox.pack(padx=self.theme.padding, pady=self.theme.padding)
+        self.saved_checkbox.pack(padx=self.theme.padding, pady=self.theme.padding)
+        self.upvoted_checkbox.pack(padx=self.theme.padding, pady=self.theme.padding)
+
+    def _bind_events(self) -> None:
+        """Bind events for the checkboxes."""
+        # The checkboxes already have commands, but we can add more bindings here if needed
+        pass
+
+    def _on_checkbox_change(self) -> None:
+        """Handle checkbox state changes."""
+        if self.checkbox_changed_callback:
+            self.checkbox_changed_callback(
+                self.saved_gags_var.get(), self.upvoted_gags_var.get()
+            )
+
+    def set_checkbox_changed_callback(
+        self, callback: Callable[[bool, bool], None]
+    ) -> None:
+        """Set the callback for when checkbox states change.
+
+        Args:
+            callback: Function to call when checkbox states change.
+                     Takes two boolean arguments: saved_selected and upvoted_selected.
+        """
+        self.checkbox_changed_callback = callback
 
     def get_saved_gags_var(self) -> bool:
         """Get the value of the saved gags checkbox.
@@ -93,3 +122,25 @@ class CheckboxesFrame(ctk.CTkFrame):
             True if the checkbox is checked, False otherwise.
         """
         return self.upvoted_gags_var.get()
+
+    def set_saved_gags_var(self, value: bool) -> None:
+        """Set the value of the saved gags checkbox.
+
+        Args:
+            value: Value to set (True for checked, False for unchecked).
+        """
+        if value:
+            self.saved_checkbox.select()
+        else:
+            self.saved_checkbox.deselect()
+
+    def set_upvoted_gags_var(self, value: bool) -> None:
+        """Set the value of the upvoted gags checkbox.
+
+        Args:
+            value: Value to set (True for checked, False for unchecked).
+        """
+        if value:
+            self.upvoted_checkbox.select()
+        else:
+            self.upvoted_checkbox.deselect()

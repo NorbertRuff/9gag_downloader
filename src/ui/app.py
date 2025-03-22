@@ -6,10 +6,11 @@ It contains all the subframes and the main application loop.
 
 import tkinter as tk
 from typing import List, Optional
+from pathlib import Path
 
 import customtkinter as ctk
 
-from src.config import Color, Theme
+from src.config import Color, Theme, SettingsManager
 from src.core.downloader import DownloadHandler
 from src.core.models import Gag
 from src.core.parser import HtmlParser
@@ -28,30 +29,47 @@ from src.utils.logging import Logger
 class App(ctk.CTk):
     """Main application window."""
 
-    def __init__(self, downloader: DownloadHandler, theme: Theme, logger: Logger):
+    def __init__(
+        self,
+        downloader: DownloadHandler,
+        theme: Theme,
+        logger: Logger,
+        settings_manager: SettingsManager,
+    ):
         """Initialize the application window.
 
         Args:
             downloader: Download handler for downloading gags.
             theme: Theme configuration.
             logger: Logger instance.
+            settings_manager: Settings manager for persisting user preferences.
         """
         super().__init__()
-
-        # Store dependencies
         self.downloader = downloader
         self.theme = theme
         self.logger = logger
+        self.settings_manager = settings_manager
 
         # Set up the UI
         self._setup_window()
         self._create_widgets()
         self._place_widgets()
 
+        # Apply saved settings
+        self._apply_saved_settings()
+
+        # Bind events for saving settings
+        self._bind_events()
+
     def _setup_window(self) -> None:
         """Configure the main window settings."""
         self.title(self.theme.title)
-        self.geometry(self.theme.geometry)
+
+        # Get window size from settings
+        settings = self.settings_manager.settings
+        geometry = f"{settings.window_width}x{settings.window_height}"
+        self.geometry(geometry)
+
         self.minsize(self.theme.min_width, self.theme.min_height)
 
         # Set background color
@@ -113,6 +131,7 @@ class App(ctk.CTk):
             border_width=self.theme.border_width,
             border_color=self.theme.border_color,
             fg_color=self.theme.section_bg,
+            recent_files=self.settings_manager.settings.recent_files,
         )
 
         self.destination_frame = DestinationFolderFrame(
@@ -142,6 +161,82 @@ class App(ctk.CTk):
             fg_color=self.theme.section_bg,
             start_download_callback=self.start_download_progress,
         )
+
+    def _apply_saved_settings(self) -> None:
+        """Apply saved settings from previous sessions."""
+        settings = self.settings_manager.settings
+
+        # Apply source file
+        if settings.last_source_file and Path(settings.last_source_file).exists():
+            self.source_frame.set_entry_value(settings.last_source_file)
+
+        # Apply destination folder
+        if (
+            settings.last_destination_folder
+            and Path(settings.last_destination_folder).exists()
+        ):
+            self.destination_frame.set_entry_value(settings.last_destination_folder)
+
+        # Apply checkbox settings
+        self.checkboxes_frame.set_saved_gags_var(settings.saved_gags_selected)
+        self.checkboxes_frame.set_upvoted_gags_var(settings.upvoted_gags_selected)
+
+    def _bind_events(self) -> None:
+        """Bind events for saving settings."""
+        # Bind window resize event
+        self.bind("<Configure>", self._on_window_configure)
+
+        # Bind source file changes
+        self.source_frame.set_file_changed_callback(self._on_source_file_changed)
+
+        # Bind destination folder changes
+        self.destination_frame.set_folder_changed_callback(
+            self._on_destination_folder_changed
+        )
+
+        # Bind checkbox changes
+        self.checkboxes_frame.set_checkbox_changed_callback(self._on_checkbox_changed)
+
+    def _on_window_configure(self, event: tk.Event) -> None:
+        """Handle window resize events.
+
+        Args:
+            event: Configure event.
+        """
+        # Only process events from the main window
+        if event.widget == self:
+            # Avoid saving during initialization or when minimized
+            if event.width > 100 and event.height > 100:
+                self.settings_manager.update_window_size(event.width, event.height)
+
+    def _on_source_file_changed(self, file_path: str) -> None:
+        """Handle source file change.
+
+        Args:
+            file_path: New source file path.
+        """
+        if file_path:
+            self.settings_manager.update_source_file(file_path)
+
+    def _on_destination_folder_changed(self, folder_path: str) -> None:
+        """Handle destination folder change.
+
+        Args:
+            folder_path: New destination folder path.
+        """
+        if folder_path:
+            self.settings_manager.update_destination_folder(folder_path)
+
+    def _on_checkbox_changed(
+        self, saved_selected: bool, upvoted_selected: bool
+    ) -> None:
+        """Handle checkbox state changes.
+
+        Args:
+            saved_selected: Whether saved gags checkbox is selected.
+            upvoted_selected: Whether upvoted gags checkbox is selected.
+        """
+        self.settings_manager.update_checkboxes(saved_selected, upvoted_selected)
 
     def _place_widgets(self) -> None:
         """Place all widgets in the grid."""
