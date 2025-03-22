@@ -1,6 +1,6 @@
 """Header frame for the application.
 
-This frame displays the application description and instructions.
+This frame displays the application title and help button.
 """
 
 import tkinter as tk
@@ -9,10 +9,11 @@ from typing import Any, Dict, Optional
 import customtkinter as ctk
 
 from src.config import Theme
+from src.ui.components import HelpButton
 
 
 class HeaderFrame(ctk.CTkFrame):
-    """Header frame with application description and instructions."""
+    """Header frame with application title and help button."""
 
     def __init__(self, master: Any, theme: Theme, **kwargs: Dict[str, Any]):
         """Initialize the header frame.
@@ -28,23 +29,48 @@ class HeaderFrame(ctk.CTkFrame):
 
     def _create_widgets(self) -> None:
         """Create and place the widgets in the frame."""
-        description_frame = ctk.CTkFrame(self, fg_color="transparent")
-        description_frame.pack(
+        header_container = ctk.CTkFrame(self, fg_color="transparent")
+        header_container.pack(
             padx=self.theme.padding, pady=self.theme.padding, fill=tk.BOTH, expand=True
         )
 
-        ctk.CTkLabel(
-            description_frame,
-            text=self._get_description_text(),
-            font=("Arial", 14),
-            justify=tk.LEFT,
-            wraplength=600,
+        # Configure grid for title and help button
+        header_container.grid_columnconfigure(0, weight=1)  # Title expands
+        header_container.grid_columnconfigure(1, weight=0)  # Button fixed width
+
+        # Add title label
+        title_label = ctk.CTkLabel(
+            header_container,
+            text="9GAG Downloader",
+            font=("Arial", 18, "bold"),
             anchor="w",
-        ).pack(
-            padx=self.theme.padding * 2,
-            pady=self.theme.padding * 1.5,
-            fill=tk.BOTH,
-            expand=True,
+        )
+        title_label.grid(
+            row=0,
+            column=0,
+            padx=self.theme.padding,
+            pady=self.theme.padding,
+            sticky=tk.W,
+        )
+
+        # Add help button
+        help_button = HelpButton(
+            header_container,
+            theme=self.theme,
+            help_text=self._get_description_text(),
+            title="About 9GAG Downloader",
+            fg_color=self.theme.button_color,
+            text_color=self.theme.button_text_color,
+            text="Help",
+            width=60,
+            height=30,
+        )
+        help_button.grid(
+            row=0,
+            column=1,
+            padx=self.theme.padding,
+            pady=self.theme.padding,
+            sticky=tk.E,
         )
 
     def _get_description_text(self) -> str:

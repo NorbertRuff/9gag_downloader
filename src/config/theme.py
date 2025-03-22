@@ -12,7 +12,7 @@ class Theme:
     # UI settings
     border_width: int = 1
     border_color: str = Color.BORDER
-    padding: int = 12
+    padding: int = 6
     small_padding: int = 6
     large_padding: int = 20
     element_width: int = 1000

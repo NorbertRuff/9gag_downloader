@@ -79,22 +79,11 @@ class App(ctk.CTk):
         ctk.set_appearance_mode(self.theme.appearance_mode)
 
         # Configure grid with better spacing
-        self.grid_rowconfigure(0, weight=0)  # Title row
-        self.grid_rowconfigure(1, weight=1)  # Content row with all frames
-        self.grid_rowconfigure(2, weight=0)  # Extra space at bottom
-
+        self.grid_rowconfigure(0, weight=1)  # Main content
         self.grid_columnconfigure(0, weight=1)  # Full width
 
     def _create_widgets(self) -> None:
         """Create all the UI widgets."""
-        # App title
-        self.title_label = ctk.CTkLabel(
-            self,
-            text="9GAG Downloader",
-            font=self.theme.header_font,
-            text_color=self.theme.text_color,
-        )
-
         # Create main container frame
         self.main_container = ctk.CTkFrame(
             self, fg_color="transparent", corner_radius=0
@@ -235,18 +224,9 @@ class App(ctk.CTk):
 
     def _place_widgets(self) -> None:
         """Place all widgets in the grid."""
-        # Place app title
-        self.title_label.grid(
-            row=0,
-            column=0,
-            sticky=tk.W + tk.E,
-            padx=self.theme.padding,
-            pady=self.theme.padding,
-        )
-
         # Place main container
         self.main_container.grid(
-            row=1,
+            row=0,
             column=0,
             sticky=tk.NSEW,
             padx=self.theme.padding,
@@ -254,12 +234,12 @@ class App(ctk.CTk):
         )
 
         # Configure main container grid
-        self.main_container.grid_columnconfigure(0, weight=2)  # Description column
-        self.main_container.grid_columnconfigure(1, weight=1)  # Options column
+        self.main_container.grid_columnconfigure(0, weight=1)  # Main content column
         self.main_container.grid_rowconfigure(0, weight=0)  # Header row
-        self.main_container.grid_rowconfigure(1, weight=0)  # Source row
-        self.main_container.grid_rowconfigure(2, weight=0)  # Destination row
-        self.main_container.grid_rowconfigure(3, weight=0)  # Download row
+        self.main_container.grid_rowconfigure(1, weight=0)  # Checkboxes row
+        self.main_container.grid_rowconfigure(2, weight=0)  # Source row
+        self.main_container.grid_rowconfigure(3, weight=0)  # Destination row
+        self.main_container.grid_rowconfigure(4, weight=0)  # Download row
 
         row = 0
         # Place frames
@@ -271,9 +251,10 @@ class App(ctk.CTk):
             pady=self.theme.padding,
         )
 
+        row += 1
         self.checkboxes_frame.grid(
             row=row,
-            column=1,
+            column=0,
             sticky=tk.NSEW,
             padx=self.theme.padding,
             pady=self.theme.padding,
@@ -283,7 +264,6 @@ class App(ctk.CTk):
         self.source_frame.grid(
             row=row,
             column=0,
-            columnspan=2,
             sticky=tk.NSEW,
             padx=self.theme.padding,
             pady=self.theme.padding,
@@ -293,7 +273,6 @@ class App(ctk.CTk):
         self.destination_frame.grid(
             row=row,
             column=0,
-            columnspan=2,
             sticky=tk.NSEW,
             padx=self.theme.padding,
             pady=self.theme.padding,
@@ -303,7 +282,6 @@ class App(ctk.CTk):
         self.download_frame.grid(
             row=row,
             column=0,
-            columnspan=2,
             sticky=tk.NSEW,
             padx=self.theme.padding,
             pady=self.theme.padding,

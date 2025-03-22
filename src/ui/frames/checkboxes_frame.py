@@ -49,9 +49,12 @@ class CheckboxesFrame(ctk.CTkFrame):
             padx=self.theme.padding, pady=self.theme.padding
         )
 
+        # Create a frame for checkboxes to be placed horizontally
+        checkboxes_container = ctk.CTkFrame(options_frame, fg_color="transparent")
+
         # Create checkboxes
         self.saved_checkbox = ctk.CTkCheckBox(
-            master=options_frame,
+            master=checkboxes_container,
             text="Saved Gags",
             variable=self.saved_gags_var,
             font=("Arial", 12),
@@ -64,7 +67,7 @@ class CheckboxesFrame(ctk.CTkFrame):
         )
 
         self.upvoted_checkbox = ctk.CTkCheckBox(
-            master=options_frame,
+            master=checkboxes_container,
             text="Upvoted Gags",
             variable=self.upvoted_gags_var,
             font=("Arial", 12),
@@ -76,13 +79,23 @@ class CheckboxesFrame(ctk.CTkFrame):
             command=self._on_checkbox_change,
         )
 
-        # Pack the frame and checkboxes
+        # Pack the frame
         options_frame.pack(
             padx=self.theme.padding, pady=self.theme.padding, fill=tk.BOTH, expand=True
         )
 
-        self.saved_checkbox.pack(padx=self.theme.padding, pady=self.theme.padding)
-        self.upvoted_checkbox.pack(padx=self.theme.padding, pady=self.theme.padding)
+        # Pack the checkboxes container
+        checkboxes_container.pack(
+            padx=self.theme.padding, pady=self.theme.padding, fill=tk.X, expand=True
+        )
+
+        # Pack checkboxes side by side
+        self.saved_checkbox.pack(
+            side=tk.LEFT, padx=self.theme.padding, pady=self.theme.padding
+        )
+        self.upvoted_checkbox.pack(
+            side=tk.LEFT, padx=self.theme.padding, pady=self.theme.padding
+        )
 
     def _bind_events(self) -> None:
         """Bind events for the checkboxes."""
