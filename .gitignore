@@ -11,6 +11,18 @@
 ./gags/videos/*
 ./gags/images/*
 
+# pycache
+__pycache__/
+*.pyc
+
+# Python package stuff
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+
 # User-specific stuff
 .idea/**/workspace.xml
 .idea/**/tasks.xml
