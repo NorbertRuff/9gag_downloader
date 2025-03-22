@@ -1,5 +1,6 @@
 """Theme and color definitions."""
 
+
 class Theme:
     def __init__(self):
         self.border_width = 1

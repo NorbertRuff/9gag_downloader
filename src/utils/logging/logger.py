@@ -41,7 +41,6 @@ def setup_logger(
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    # Add file handler if log_file is provided
     if log_file:
         log_path = Path(log_file)
         log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -52,7 +51,6 @@ def setup_logger(
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
-    # Add console handler if console is True
     if console:
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setFormatter(formatter)

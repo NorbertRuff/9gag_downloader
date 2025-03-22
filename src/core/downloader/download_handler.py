@@ -24,25 +24,21 @@ class ContentType(Enum):
 class DownloadHandler:
     """Handler for downloading 9GAG content."""
 
-    # Updated base URL
     BASE_URL = "https://img-9gag-fun.9cache.com/photo/"
 
-    # Updated suffixes for different image and video formats
     # Video formats
-    VIDEO_SUFFIX_460 = "_460sv.mp4"  # Small video
-    VIDEO_SUFFIX_720 = "_720w_gt.mp4"  # HD video
-    VIDEO_SUFFIX_WEBM = "_460svwm.webm"  # WebM format
+    VIDEO_SUFFIX_460 = "_460sv.mp4"
+    VIDEO_SUFFIX_720 = "_720w_gt.mp4"
+    VIDEO_SUFFIX_WEBM = "_460svwm.webm"
 
     # Image formats
-    IMAGE_SUFFIX_700 = "_700b.jpg"  # Standard image
-    IMAGE_SUFFIX_460 = "_460s.jpg"  # Small image
-    IMAGE_SUFFIX_WEBP = "_700bwp.webp"  # WebP format
+    IMAGE_SUFFIX_700 = "_700b.jpg"
+    IMAGE_SUFFIX_460 = "_460s.jpg"
+    IMAGE_SUFFIX_WEBP = "_700bwp.webp"
 
-    # Save locations
     IMAGE_SAVE_LOCATION = "gags/images"
     VIDEO_SAVE_LOCATION = "gags/videos"
 
-    # Request headers
     HEADERS = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept": "*/*",
@@ -93,10 +89,8 @@ class DownloadHandler:
             else self.IMAGE_SAVE_LOCATION
         )
 
-        # Sanitize title
         sanitized_title = self._sanitize_title(gag.title)
 
-        # Create path
         file_path = (
             Path(self.destination_folder)
             / save_location
@@ -107,18 +101,15 @@ class DownloadHandler:
             f"Attempting to download {content_type_name} for gag: {gag.id} - {gag.title}"
         )
 
-        # Check if already downloaded
         if file_path.exists():
             self.logger.info(
                 f"{content_type_name.capitalize()} already downloaded: {file_path.name}"
             )
 
-            # Update gag with info
             gag.is_video = content_type == ContentType.VIDEO
             gag.url = str(file_path)
             return True
 
-        # Download content
         content_url = f"{self.BASE_URL}{gag.id}{suffix}"
         self.logger.info(f"Requesting URL: {content_url}")
 
@@ -129,11 +120,9 @@ class DownloadHandler:
                 f"{content_type_name.capitalize()} download response code: {response.status_code}"
             )
             if response.status_code == 200:
-                # Check content type header to confirm content type
                 content_type_header = response.headers.get("Content-Type", "")
                 self.logger.info(f"Content-Type header: {content_type_header}")
 
-                # For videos, verify it's actually a video by checking content type
                 if content_type == ContentType.VIDEO:
                     if (
                         "video" not in content_type_header.lower()
@@ -148,14 +137,12 @@ class DownloadHandler:
                             f"Video URL responded with non-video content type: {content_type_header}"
                         )
 
-                        # Check response size to make sure it's not an error page
                         content_length = len(response.content)
                         if (
                             content_length < 10000
                         ):  # Less than 10KB is probably not a valid video
                             return False
 
-                # Check response size to make sure it's not an error page
                 content_length = len(response.content)
                 self.logger.info(f"Response content length: {content_length} bytes")
 
@@ -163,14 +150,11 @@ class DownloadHandler:
                     f"{content_type_name.capitalize()} downloaded as {file_path.name}"
                 )
 
-                # Ensure directory exists
                 file_path.parent.mkdir(parents=True, exist_ok=True)
 
-                # Save content
                 with open(file_path, "wb") as f:
                     f.write(response.content)
 
-                # Update gag with info
                 gag.is_video = content_type == ContentType.VIDEO
                 gag.url = str(file_path)
                 return True
@@ -207,14 +191,12 @@ class DownloadHandler:
             True if download was successful, False otherwise.
         """
         if content_type == ContentType.VIDEO:
-            # Try different video formats in order of preference
             if self._try_download_with_suffix(gag, content_type, self.VIDEO_SUFFIX_720):
                 return True
             if self._try_download_with_suffix(gag, content_type, self.VIDEO_SUFFIX_460):
                 return True
             return False
         else:  # ContentType.IMAGE
-            # Try different image formats in order of preference
             if self._try_download_with_suffix(gag, content_type, self.IMAGE_SUFFIX_700):
                 return True
             if self._try_download_with_suffix(gag, content_type, self.IMAGE_SUFFIX_460):
@@ -255,16 +237,13 @@ class DownloadHandler:
         """
         self.destination_folder = destination_folder
 
-        # Ensure base directories exist
         Path(destination_folder).mkdir(parents=True, exist_ok=True)
 
-        # Try downloading as video first
         self.logger.info(f"Trying video download first for gag ID: {gag.id}")
         if self.try_video_download(gag):
             self.logger.info(f"Successfully downloaded as video: {gag.id}")
             return True
 
-        # If video download fails, try as image
         self.logger.info(
             f"Video download failed for gag ID: {gag.id}. Trying as image."
         )
@@ -272,6 +251,5 @@ class DownloadHandler:
             self.logger.info(f"Successfully downloaded as image: {gag.id}")
             return True
 
-        # Both download attempts failed
         self.logger.error(f"Failed to download gag: {gag.full_url}")
         return False

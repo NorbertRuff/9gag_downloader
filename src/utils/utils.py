@@ -63,7 +63,6 @@ def get_gag_details(table: BeautifulSoup) -> List[GagDetail]:
     for tr in table.find_all("tr"):
         columns = tr.find_all("td")
         if columns and len(columns) > 1:
-            # Get href attribute safely
             href = (
                 columns[1].a["href"]
                 if columns[1].a and "href" in columns[1].a.attrs
@@ -71,7 +70,6 @@ def get_gag_details(table: BeautifulSoup) -> List[GagDetail]:
             )
             gag_id = href.split("/")[-1] if href else ""
 
-            # Get title safely
             title = columns[2].text.strip() if columns[2].text else "No Title"
 
             if gag_id:

@@ -35,7 +35,6 @@ class HelpButton(ctk.CTkButton):
         self.help_text = help_text
         self.title = title
 
-        # Button defaults
         icon_path = kwargs.pop("icon", "ℹ️")
         text = kwargs.pop("text", "")
         width = kwargs.pop("width", 30)
@@ -52,34 +51,28 @@ class HelpButton(ctk.CTkButton):
             **kwargs,
         )
 
-        # If no text is provided, use an icon
         if not text:
             self.configure(text=icon_path)
 
     def _show_help_popup(self) -> None:
         """Show the help popup with the information text."""
-        # Create popup dialog
         dialog = ctk.CTkToplevel(self)
         dialog.title(self.title)
         dialog.geometry("600x400")
         dialog.resizable(True, True)
-        dialog.grab_set()  # Make dialog modal
+        dialog.grab_set()
 
-        # Add minimum size
         dialog.minsize(400, 300)
 
-        # Configure dialog grid
         dialog.grid_columnconfigure(0, weight=1)
         dialog.grid_rowconfigure(0, weight=1)
         dialog.grid_rowconfigure(1, weight=0)
 
-        # Create simpler implementation with just a text widget
         text_container = ctk.CTkFrame(dialog)
         text_container.grid(row=0, column=0, padx=20, pady=20, sticky=tk.NSEW)
         text_container.grid_columnconfigure(0, weight=1)
         text_container.grid_rowconfigure(0, weight=1)
 
-        # Create a Text widget for scrolling with built-in scrollbar
         text_widget = tk.Text(
             text_container,
             wrap=tk.WORD,
@@ -93,20 +86,16 @@ class HelpButton(ctk.CTkButton):
         )
         text_widget.grid(row=0, column=0, sticky=tk.NSEW)
 
-        # Add scrollbar to text widget
         scrollbar = ctk.CTkScrollbar(text_container, command=text_widget.yview)
         scrollbar.grid(row=0, column=1, sticky=tk.NS)
         text_widget.config(yscrollcommand=scrollbar.set)
 
-        # Insert text
         text_widget.insert(tk.END, self.help_text)
-        text_widget.config(state=tk.DISABLED)  # Make read-only
+        text_widget.config(state=tk.DISABLED)
 
-        # Add close button
         close_button = ctk.CTkButton(dialog, text="Close", command=dialog.destroy)
         close_button.grid(row=1, column=0, padx=20, pady=20, sticky=tk.SE)
 
-        # Center dialog on parent window
         dialog.update_idletasks()
         parent_x = self.winfo_toplevel().winfo_x()
         parent_y = self.winfo_toplevel().winfo_y()

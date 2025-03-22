@@ -18,7 +18,6 @@ def test_download(logger):
     logger.info("Starting download test")
     downloader = DownloadHandler(logger)
 
-    # Create a test destination folder
     test_folder = Path("./test_downloads")
     test_folder.mkdir(exist_ok=True)
 
@@ -39,17 +38,14 @@ def main():
     logger = Logger("9GAG Downloader")
     logger.info("Starting application")
 
-    # Initialize components
     theme = Theme()
     settings_manager = SettingsManager()
     downloader = DownloadHandler(logger)
 
-    # For debugging: Uncomment to test downloads directly
     if len(sys.argv) > 1 and sys.argv[1] == "--test":
         test_download(logger)
         return
 
-    # Create and run app
     app = App(
         downloader=downloader,
         theme=theme,
