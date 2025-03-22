@@ -397,17 +397,57 @@ class App(ctk.CTk):
         total_gags = len(gags)
         one_percent = total_gags / 100 if total_gags > 0 else 1
 
+        # Reset and initialize progress bar stats
+        self.progress_frame.reset_stats()
+        self.progress_frame.set_total_items(total_gags)
+
         # Download statistics
         successful = 0
         failed = 0
+        already_downloaded = 0
+
+        # For time estimate calculation
+        import time
+
+        start_time = time.time()
 
         # Download each gag
         for i, gag in enumerate(gags):
+            # Check if download was canceled
+            if self.progress_frame.is_download_cancelled():
+                self.set_progress_message(
+                    f"Download canceled: {successful} successful, {failed} failed, {already_downloaded} already downloaded",
+                    color=Color.WARNING,
+                )
+                break
+
+            # Update current item
+            self.progress_frame.update_current_item(gag.title, i)
+
             # Update progress
             progress_percent = i / one_percent / 100
             progress_int = int(i / one_percent)
+
+            # Calculate estimated time remaining
+            elapsed = time.time() - start_time
+            if i > 0:
+                items_per_second = i / elapsed if elapsed > 0 else 0
+                remaining_items = total_gags - i
+                if items_per_second > 0:
+                    remaining_seconds = remaining_items / items_per_second
+                    minutes = int(remaining_seconds // 60)
+                    seconds = int(remaining_seconds % 60)
+                    remaining_time = f"{minutes:02d}:{seconds:02d}"
+                else:
+                    remaining_time = "--:--"
+            else:
+                remaining_time = "--:--"
+
             self.progress_frame.set_progress_bar(
-                progress_percent, progress_int, color=Color.MAIN
+                progress_percent,
+                progress_int,
+                color=Color.MAIN,
+                remaining_time=remaining_time,
             )
 
             # Update status message
@@ -419,30 +459,88 @@ class App(ctk.CTk):
             # Process UI events
             self.update()
 
-            # Download the gag
-            if self.downloader.download_gag(gag, destination_folder):
+            # Detect if file already exists
+            is_cached = False
+            image_path = (
+                Path(destination_folder)
+                / "gags/images"
+                / f"{self._sanitize_filename(gag.title)}.jpg"
+            )
+            video_path = (
+                Path(destination_folder)
+                / "gags/videos"
+                / f"{self._sanitize_filename(gag.title)}.mp4"
+            )
+
+            if image_path.exists() or video_path.exists():
+                is_cached = True
+                is_video = video_path.exists()
+                already_downloaded += 1
+                self.progress_frame.increment_counters(cached=True, is_video=is_video)
+                self.progress_frame.update_current_item(
+                    gag.title, i, is_video=is_video, is_cached=True
+                )
                 successful += 1
+                continue
+
+            # Download the gag
+            # First, try as video (our downloader tries video first, then image)
+            download_result = self.downloader.download_gag(gag, destination_folder)
+
+            if download_result:
+                successful += 1
+                self.progress_frame.increment_counters(
+                    success=True, is_video=gag.is_video
+                )
+                self.progress_frame.update_current_item(
+                    gag.title, i, is_video=gag.is_video
+                )
+                self.logger.info(
+                    f"Downloaded as {'video' if gag.is_video else 'image'}: {gag.title}"
+                )
             else:
                 failed += 1
+                self.progress_frame.increment_counters(failure=True)
 
         # Update progress to complete
         self.progress_frame.set_progress_bar(1.0, 100, color=Color.SUCCESS)
 
         # Show final status
-        if failed > 0:
+        if failed > 0 or self.progress_frame.is_download_cancelled():
+            status_color = Color.WARNING
+        else:
+            status_color = Color.SUCCESS
+
+        # Final message takes into account already downloaded files
+        if already_downloaded > 0:
             self.set_progress_message(
-                f"Download finished: {successful} successful, {failed} failed",
-                color=Color.WARNING if failed > 0 else Color.SUCCESS,
+                f"Download finished: {successful} successful ({already_downloaded} already downloaded), {failed} failed",
+                color=status_color,
             )
         else:
             self.set_progress_message(
-                f"All {successful} gags downloaded successfully!", color=Color.SUCCESS
+                f"Download finished: {successful} successful, {failed} failed",
+                color=status_color,
             )
 
         # Enable UI elements
         self.download_frame.enable_download_button()
         self.progress_frame.pack_open_log_button()
         self.update()
+
+    def _sanitize_filename(self, title: str) -> str:
+        """Sanitize a title for use in filenames.
+
+        Args:
+            title: Title to sanitize.
+
+        Returns:
+            Sanitized title.
+        """
+        import re
+
+        sanitized = re.sub(r'[\\/*?:"<>|]', "", title)
+        return sanitized[:100]  # Limit length to 100 chars
 
     def set_progress_message(self, text: str, color: str = Color.WHITE) -> None:
         """Set the progress message displayed to the user.

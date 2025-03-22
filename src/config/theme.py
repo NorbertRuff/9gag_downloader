@@ -42,11 +42,11 @@ class Theme:
 
     # Text settings
     font_family: str = "Segoe UI" if "win" in __import__("sys").platform else "Arial"
-    header_font: tuple = (font_family, 20, "bold")
-    title_font: tuple = (font_family, 16, "bold")
-    normal_font: tuple = (font_family, 12)
+    header_font: tuple = (font_family, 16, "bold")
+    title_font: tuple = (font_family, 14, "bold")
+    normal_font: tuple = (font_family, 10)
     small_font: tuple = (font_family, 10)
-    button_font: tuple = (font_family, 14, "bold")
+    button_font: tuple = (font_family, 12, "bold")
     text_color: str = Color.FOREGROUND
 
     # Button settings
@@ -59,6 +59,10 @@ class Theme:
     button_width: int = 120
     main_button_width: int = 200
 
+    # Cancel button settings
+    button_cancel_color: str = Color.RED
+    button_cancel_hover_color: str = "#c0392b"  # Darker red
+
     # Input settings
     entry_bg: str = Color.INPUT_BG
     entry_fg: str = Color.INPUT_TEXT
@@ -68,3 +72,9 @@ class Theme:
     progress_color: str = Color.MAIN
     progress_background_color: str = Color.SECONDARY_BG
     progress_height: int = 20
+
+    # Status colors
+    info_color: str = Color.BLUE
+    success_color: str = Color.SUCCESS
+    error_color: str = Color.ERROR
+    warning_color: str = Color.WARNING

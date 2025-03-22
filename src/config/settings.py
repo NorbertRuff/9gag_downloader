@@ -124,7 +124,6 @@ class SettingsManager:
             with open(self.settings_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2)
 
-            self.logger.info(f"Settings saved to {self.settings_file}")
             return True
 
         except Exception as e:
