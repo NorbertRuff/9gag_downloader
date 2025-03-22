@@ -40,13 +40,11 @@ def create_dirs_if_not_exist(selected_path: str) -> None:
     if not selected_path:
         return
 
-    # Use Path for better cross-platform compatibility
     base_path = Path(selected_path)
     gags_path = base_path / "gags"
     images_path = gags_path / "images"
     videos_path = gags_path / "videos"
 
-    # Create directories
     gags_path.mkdir(exist_ok=True)
     images_path.mkdir(exist_ok=True)
     videos_path.mkdir(exist_ok=True)
