@@ -30,59 +30,82 @@ class ProgressBarFrame(ctk.CTkFrame):
 
     def _create_widgets(self) -> None:
         """Create and place the widgets in the frame."""
-        # Create progress frame
-        self.progress_frame = ctk.CTkFrame(
-            self,
-            border_width=self.theme.border_width,
-            border_color=self.theme.border_color,
+        # Create container frame with padding
+        container = ctk.CTkFrame(self, fg_color="transparent")
+        container.pack(
+            padx=self.theme.padding, pady=self.theme.padding, fill=tk.BOTH, expand=True
         )
+
+        # Top section with label and percentage
+        top_section = ctk.CTkFrame(container, fg_color="transparent")
+        top_section.pack(fill=tk.X, pady=(0, self.theme.small_padding))
 
         # Create progress label
-        ctk.CTkLabel(
-            self.progress_frame, text="Progress:", font=("Arial", 12, "bold")
-        ).pack(padx=self.theme.padding, pady=self.theme.padding, side=tk.LEFT)
-
-        # Create progress bar
-        self.progress_bar = ctk.CTkProgressBar(
-            self.progress_frame,
-            progress_color=self.theme.progress_color,
-            height=25,
-            width=self.theme.element_width,
+        progress_label = ctk.CTkLabel(
+            top_section,
+            text="Download Progress:",
+            font=self.theme.normal_font,
+            text_color=self.theme.text_color,
+            anchor="w",
         )
-        self.progress_bar.set(0)  # Initialize to 0
 
         # Create percentage label
         self.progress_bar_percentage = ctk.CTkLabel(
-            self.progress_frame, text="0%", font=("Arial", 20)
+            top_section,
+            text="0%",
+            font=self.theme.title_font,
+            text_color=self.theme.text_color,
         )
+
+        # Pack top section widgets
+        progress_label.pack(side=tk.LEFT)
+        self.progress_bar_percentage.pack(side=tk.RIGHT, padx=(10, 0))
+
+        # Progress bar container for styling
+        progress_container = ctk.CTkFrame(
+            container,
+            fg_color=self.theme.progress_background_color,
+            corner_radius=self.theme.corner_radius,
+            height=self.theme.progress_height,
+        )
+        progress_container.pack(fill=tk.X, pady=self.theme.small_padding)
+
+        # Create progress bar
+        self.progress_bar = ctk.CTkProgressBar(
+            progress_container,
+            progress_color=self.theme.progress_color,
+            height=self.theme.progress_height - 4,
+            corner_radius=self.theme.corner_radius - 2,
+            fg_color=self.theme.progress_background_color,
+        )
+        self.progress_bar.pack(fill=tk.X, expand=True, padx=2, pady=2)
+        self.progress_bar.set(0)  # Initialize to 0
+
+        # Create action buttons container
+        button_container = ctk.CTkFrame(container, fg_color="transparent")
+        button_container.pack(fill=tk.X, pady=(self.theme.padding, 0), anchor="e")
 
         # Create open log button (initially hidden)
         self.open_log_button = ctk.CTkButton(
-            self.progress_frame,
+            button_container,
             text="Open Log",
-            width=150,
-            height=40,
-            font=("Arial", 12),
+            width=self.theme.button_width,
+            height=self.theme.button_height,
+            font=self.theme.normal_font,
+            fg_color=self.theme.button_color,
+            hover_color=self.theme.button_hover_color,
+            text_color=self.theme.button_text_color,
+            corner_radius=self.theme.button_corner_radius,
             command=self._open_log,
         )
 
-        # Pack widgets
-        self.progress_bar_percentage.pack(
-            padx=self.theme.padding, pady=self.theme.padding, side=tk.TOP
-        )
-
-        self.progress_bar.pack(
-            padx=self.theme.padding, pady=self.theme.padding, side=tk.BOTTOM, fill=tk.X
-        )
-
-        self.progress_frame.pack(
-            padx=self.theme.padding, pady=self.theme.padding, fill=tk.X
-        )
+        # Pack container from right
+        button_container.pack(anchor="e")
 
     def pack_open_log_button(self) -> None:
         """Show the open log button."""
         self.open_log_button.pack(
-            padx=self.theme.padding, pady=self.theme.padding, side=tk.RIGHT
+            side=tk.RIGHT, padx=self.theme.small_padding, pady=self.theme.small_padding
         )
 
     def unpack_open_log_button(self) -> None:

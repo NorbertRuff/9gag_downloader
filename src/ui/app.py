@@ -54,53 +54,173 @@ class App(ctk.CTk):
         self.geometry(self.theme.geometry)
         self.minsize(self.theme.min_width, self.theme.min_height)
 
+        # Set background color
+        self.configure(fg_color=self.theme.main_bg)
+
         # Set appearance mode
         ctk.set_appearance_mode(self.theme.appearance_mode)
 
-        # Configure grid
-        self.grid_rowconfigure(6, weight=1)
-        self.grid_columnconfigure(1, weight=1)
+        # Configure grid with better spacing
+        self.grid_rowconfigure(0, weight=0)  # Title row
+        self.grid_rowconfigure(1, weight=0)  # Header row
+        self.grid_rowconfigure(2, weight=0)  # Source row
+        self.grid_rowconfigure(3, weight=0)  # Destination row
+        self.grid_rowconfigure(4, weight=0)  # Download button row
+        self.grid_rowconfigure(5, weight=0)  # Progress row
+        self.grid_rowconfigure(6, weight=1)  # Extra space at bottom
+
+        self.grid_columnconfigure(0, weight=2)  # Left column (description)
+        self.grid_columnconfigure(1, weight=1)  # Right column (options)
 
     def _create_widgets(self) -> None:
         """Create all the UI widgets."""
         # App title
         self.title_label = ctk.CTkLabel(
-            self, text="9GAG Downloader", font=("Arial", 20)
+            self,
+            text="9GAG Downloader",
+            font=self.theme.header_font,
+            text_color=self.theme.text_color,
+        )
+
+        # Create main container frame
+        self.main_container = ctk.CTkFrame(
+            self, fg_color="transparent", corner_radius=0
         )
 
         # Create frames
-        self.header = HeaderFrame(self, theme=self.theme)
-        self.checkboxes_frame = CheckboxesFrame(self, theme=self.theme)
-        self.source_frame = SourceFileFrame(self, theme=self.theme)
-        self.destination_frame = DestinationFolderFrame(self, theme=self.theme)
-        self.progress_frame = ProgressBarFrame(self, theme=self.theme)
+        self.header = HeaderFrame(
+            self.main_container,
+            theme=self.theme,
+            corner_radius=self.theme.corner_radius,
+            border_width=self.theme.border_width,
+            border_color=self.theme.border_color,
+            fg_color=self.theme.section_bg,
+        )
+
+        self.checkboxes_frame = CheckboxesFrame(
+            self.main_container,
+            theme=self.theme,
+            corner_radius=self.theme.corner_radius,
+            border_width=self.theme.border_width,
+            border_color=self.theme.border_color,
+            fg_color=self.theme.section_bg,
+        )
+
+        self.source_frame = SourceFileFrame(
+            self.main_container,
+            theme=self.theme,
+            corner_radius=self.theme.corner_radius,
+            border_width=self.theme.border_width,
+            border_color=self.theme.border_color,
+            fg_color=self.theme.section_bg,
+        )
+
+        self.destination_frame = DestinationFolderFrame(
+            self.main_container,
+            theme=self.theme,
+            corner_radius=self.theme.corner_radius,
+            border_width=self.theme.border_width,
+            border_color=self.theme.border_color,
+            fg_color=self.theme.section_bg,
+        )
+
+        self.progress_frame = ProgressBarFrame(
+            self.main_container,
+            theme=self.theme,
+            corner_radius=self.theme.corner_radius,
+            border_width=self.theme.border_width,
+            border_color=self.theme.border_color,
+            fg_color=self.theme.section_bg,
+        )
+
         self.download_frame = DownloadFrame(
-            self, theme=self.theme, start_download_callback=self.start_download_progress
+            self.main_container,
+            theme=self.theme,
+            corner_radius=self.theme.corner_radius,
+            border_width=self.theme.border_width,
+            border_color=self.theme.border_color,
+            fg_color=self.theme.section_bg,
+            start_download_callback=self.start_download_progress,
         )
 
     def _place_widgets(self) -> None:
         """Place all widgets in the grid."""
         # Place app title
         self.title_label.grid(
-            row=0, column=0, columnspan=2, sticky=tk.W + tk.E, padx=10, pady=10
+            row=0,
+            column=0,
+            columnspan=2,
+            sticky=tk.W + tk.E,
+            padx=self.theme.padding,
+            pady=self.theme.padding,
         )
 
+        # Place main container
+        self.main_container.grid(
+            row=1,
+            column=0,
+            columnspan=2,
+            sticky=tk.NSEW,
+            padx=self.theme.padding,
+            pady=self.theme.padding,
+        )
+
+        # Configure main container grid
+        self.main_container.grid_columnconfigure(0, weight=2)
+        self.main_container.grid_columnconfigure(1, weight=1)
+
+        row = 0
         # Place frames
         self.header.grid(
-            row=1, column=0, columnspan=1, sticky=tk.W + tk.E, padx=5, pady=5
+            row=row,
+            column=0,
+            columnspan=1,
+            sticky=tk.NSEW,
+            padx=self.theme.padding,
+            pady=self.theme.padding,
         )
+
         self.checkboxes_frame.grid(
-            row=1, column=1, columnspan=1, sticky=tk.W + tk.E, padx=5, pady=5
+            row=row,
+            column=1,
+            columnspan=1,
+            sticky=tk.NSEW,
+            padx=self.theme.padding,
+            pady=self.theme.padding,
         )
+
+        row += 1
         self.source_frame.grid(
-            row=2, column=0, columnspan=2, sticky=tk.W + tk.E, padx=5, pady=5
+            row=row,
+            column=0,
+            columnspan=2,
+            sticky=tk.NSEW,
+            padx=self.theme.padding,
+            pady=self.theme.padding,
         )
+
+        row += 1
         self.destination_frame.grid(
-            row=3, column=0, columnspan=2, sticky=tk.W + tk.E, padx=5, pady=5
+            row=row,
+            column=0,
+            columnspan=2,
+            sticky=tk.NSEW,
+            padx=self.theme.padding,
+            pady=self.theme.padding,
         )
+
+        row += 1
         self.download_frame.grid(
-            row=4, column=0, columnspan=2, sticky=tk.W + tk.E, padx=5, pady=5
+            row=row,
+            column=0,
+            columnspan=2,
+            sticky=tk.NSEW,
+            padx=self.theme.padding,
+            pady=self.theme.padding,
         )
+
+        # Progress frame is initially hidden
+        # It will be shown when needed
 
     def start_download_progress(self) -> None:
         """Start the download process based on user input."""
